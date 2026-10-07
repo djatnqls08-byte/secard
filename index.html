@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DOPA 만능 페어틀 엔진 (Tag-Driven Core)</title>
+  <title>DOPA 만능 페어틀 엔진 (시나리오 제목 & 폰트팩 추가)</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.js"></script>
 
-  <!-- 폰트: 고딕, 명조, 사이버, 감성체 -->
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;700;900&family=Share+Tech+Mono&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+  <!-- ⭐ 상업용 무료 폰트 15종 초거대 로딩팩 ⭐ -->
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Cinzel:wght@700&family=Cute+Font&family=Do+Hyeon&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Jua&family=Nanum+Brush+Script&family=Nanum+Myeongjo:wght@700;800&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;700;900&family=Share+Tech+Mono&family=Single+Day&family=Song+Myung&family=Yeon+Sung&display=swap" rel="stylesheet">
 
   <style>
     body { font-family: 'Noto Sans KR', sans-serif; background-color: #050505; color: #fff; touch-action: manipulation; }
@@ -29,7 +29,7 @@
     .tag-btn.active[data-tag="digicam"] { background: #10b981; color: #fff; border-color: #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.4); }
     .tag-btn.active[data-tag="wuxia"] { background: #d4af37; color: #000; border-color: #d4af37; box-shadow: 0 0 15px rgba(212,175,55,0.4); }
 
-    .input-box { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 13px; outline: none; margin-top: 4px; }
+    .input-box { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 13px; outline: none; margin-top: 4px; transition: 0.2s; }
     .input-box:focus { border-color: #fff; }
   </style>
 </head>
@@ -45,14 +45,14 @@
     <div>
       <div class="flex justify-between items-end mb-2">
         <span class="text-sm font-bold text-zinc-300">PREVIEW</span>
-        <span class="text-[10px] text-zinc-500 font-mono" id="statusMsg">위젯을 드래그해서 배치하세요</span>
+        <span class="text-[10px] text-zinc-500 font-mono" id="statusMsg">위젯과 제목을 드래그해서 배치하세요</span>
       </div>
       <div class="canvas-wrapper">
         <canvas id="previewCanvas" width="960" height="540"></canvas>
       </div>
     </div>
 
-    <!-- 2. 태그 조립 (이 부분이 핵심!) -->
+    <!-- 2. 태그 조립 -->
     <div>
       <span class="text-sm font-bold text-zinc-300 block mb-3">1. 서사 및 장르 태그 (중복 선택 가능)</span>
       <div class="flex flex-wrap gap-2" id="tagContainer">
@@ -62,7 +62,6 @@
         <button class="tag-btn" data-tag="romance">#로맨스</button>
         <button class="tag-btn" data-tag="hate">#혐관</button>
       </div>
-      <p class="text-[10px] text-zinc-500 mt-2">💡 선택한 태그에 따라 화면에 알맞은 위젯(오브젝트)이 즉시 추가됩니다.</p>
     </div>
 
     <!-- 3. 정보 및 미디어 입력 -->
@@ -75,11 +74,39 @@
           <input type="file" id="bgInput" accept="image/*, image/gif" class="hidden">
         </label>
         <button id="btnReset" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold p-3 rounded-lg transition">
-          🔄 위젯 위치 초기화
+          🔄 위치 초기화
         </button>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 mt-2">
+      <!-- ⭐ 시나리오 제목 및 폰트 추가 영역 ⭐ -->
+      <div class="grid grid-cols-2 gap-3 mt-2 border-t border-zinc-800 pt-3">
+        <div>
+          <label class="text-[11px] text-zinc-400 font-bold">시나리오 제목 (Title)</label>
+          <input type="text" id="valTitle" class="input-box" value="애정은 병열">
+        </div>
+        <div>
+          <label class="text-[11px] text-zinc-400 font-bold">타이틀 폰트 (15종)</label>
+          <select id="valTitleFont" class="input-box cursor-pointer">
+            <option value="Black Han Sans">블랙 한 산스 (두꺼운 제목)</option>
+            <option value="Noto Sans KR">노토 산스 (깔끔 고딕)</option>
+            <option value="Do Hyeon">도현 (레트로 타이틀)</option>
+            <option value="Jua">주아 (동글 고딕)</option>
+            <option value="Nanum Myeongjo">나눔 명조 (기본 명조)</option>
+            <option value="Gowun Batang">고운 바탕 (감성 로맨스)</option>
+            <option value="Hahmlet">함초롬 (세련된 고전)</option>
+            <option value="Song Myung">송명 (공포/스릴러)</option>
+            <option value="Yeon Sung">연성 (무협/동양풍)</option>
+            <option value="Nanum Pen Script">나눔 펜 (정갈한 펜글씨)</option>
+            <option value="Nanum Brush Script">나눔 붓 (거친 붓글씨)</option>
+            <option value="Single Day">싱글 데이 (귀여운 다꾸)</option>
+            <option value="Cute Font">큐트 폰트 (픽셀/아기자기)</option>
+            <option value="Share Tech Mono">Share Tech (사이버/영문)</option>
+            <option value="Cinzel">Cinzel (로판/고급 영문)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-2 border-t border-zinc-800 pt-3">
         <div>
           <label class="text-[11px] text-zinc-400 font-bold">캐릭터 A (L)</label>
           <input type="text" id="valNameA" class="input-box" value="윤세라">
@@ -95,7 +122,7 @@
       </div>
     </div>
 
-    <!-- 4. 고화질 추출 (기존 코드 완벽 보존) -->
+    <!-- 4. 고화질 추출 -->
     <div class="grid grid-cols-2 gap-3 pt-2">
       <button id="btnExportMP4" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-white font-bold py-4 rounded-xl text-xs transition active:scale-95">
         ✨ 고화질 MP4 저장
@@ -122,7 +149,9 @@
     const ctx = canvas.getContext('2d');
     
     const state = {
-      tags: new Set(['cyber']), // 현재 활성화된 태그들 (다중 선택 가능)
+      tags: new Set(['cyber']),
+      title: '애정은 병열',
+      titleFont: 'Black Han Sans', // 기본 타이틀 폰트
       nameA: '윤세라',
       nameB: '백우진',
       quote: '잡을 수 있다면 잡아봐.',
@@ -135,24 +164,21 @@
 
     // ==========================================
     // 2. 위젯 위치 데이터 (초기값)
-    // 장르별로 등장하는 UI 위젯들의 좌표와 크기
+    // ⭐ 세션카드용 타이틀 박스 추가
     // ==========================================
     const defaultWidgets = {
-      // 사이버펑크용 위젯
-      console: { id: 'console', x: 280, y: 310, w: 400, h: 180 },
-      barcode: { id: 'barcode', x: 40, y: 450, w: 180, h: 70 },
-      // 디카용 위젯
-      afBox:   { id: 'afBox', x: 430, y: 190, w: 100, h: 100 },
-      dateBox: { id: 'dateBox', x: 40, y: 480, w: 250, h: 40 },
-      // 무협/동양풍용 위젯
+      titleBox:   { id: 'titleBox', x: 280, y: 150, w: 400, h: 90 }, // 세션카드 제목 (자동 길이 조절됨)
+      console:    { id: 'console', x: 280, y: 310, w: 400, h: 180 },
+      barcode:    { id: 'barcode', x: 40, y: 450, w: 180, h: 70 },
+      afBox:      { id: 'afBox', x: 430, y: 190, w: 100, h: 100 },
+      dateBox:    { id: 'dateBox', x: 40, y: 480, w: 250, h: 40 },
       wuxiaFrame: { id: 'wuxiaFrame', x: 40, y: 40, w: 880, h: 460 },
       wuxiaText:  { id: 'wuxiaText', x: 800, y: 80, w: 60, h: 350 },
-      // 공통 텍스트 박스
-      quoteBox: { id: 'quoteBox', x: 50, y: 50, w: 300, h: 60 }
+      quoteBox:   { id: 'quoteBox', x: 50, y: 50, w: 300, h: 60 }
     };
     
     let widgets = JSON.parse(JSON.stringify(defaultWidgets));
-    let renderOrder = Object.keys(widgets); // 드래그 레이어 처리용
+    let renderOrder = Object.keys(widgets); 
 
     // ==========================================
     // 3. 기획자님의 드래그 & 스냅 엔진 (유지)
@@ -171,20 +197,17 @@
     function handleDragStart(e) {
       if (isExporting) return;
       const pos = getCanvasCoords(e);
-      
-      // 현재 켜져있는 태그에 해당하는 위젯만 드래그 판정
       const activeWidgets = getActiveWidgets();
 
       for (let i = renderOrder.length - 1; i >= 0; i--) {
         const key = renderOrder[i];
-        if (!activeWidgets.includes(key)) continue; // 숨겨진 위젯은 무시
+        if (!activeWidgets.includes(key)) continue;
         
         const item = widgets[key];
         if (pos.x >= item.x && pos.x <= item.x + item.w && pos.y >= item.y && pos.y <= item.y + item.h) {
           draggingItem = key;
           dragOffset.x = pos.x - item.x;
           dragOffset.y = pos.y - item.y;
-          // 클릭한 위젯을 렌더링 최상단으로 올림
           renderOrder.splice(i, 1);
           renderOrder.push(key);
           if (e.cancelable) e.preventDefault();
@@ -200,7 +223,6 @@
       let newY = Math.round(pos.y - dragOffset.y);
       const item = widgets[draggingItem];
 
-      // 자석 스냅 효과 (화면 중앙 근처로 가면 찰칵 붙음)
       const cx = newX + item.w / 2;
       const cy = newY + item.h / 2;
       if (Math.abs(cx - canvas.width/2) < SNAP_THRESHOLD) newX = canvas.width/2 - item.w/2;
@@ -217,10 +239,11 @@
     canvas.addEventListener('touchstart', handleDragStart, { passive: false }); window.addEventListener('touchmove', handleDragMove, { passive: false }); window.addEventListener('touchend', handleDragEnd);
 
     // ==========================================
-    // 4. 태그에 따라 활성화할 위젯을 결정하는 룰 엔진
+    // 4. 태그에 따라 활성화할 위젯 룰 엔진
     // ==========================================
     function getActiveWidgets() {
-      let active = ['quoteBox']; // 대사창은 항상 기본
+      // ⭐ 타이틀 박스와 대사 박스는 항시 노출
+      let active = ['titleBox', 'quoteBox']; 
       if (state.tags.has('cyber')) active.push('console', 'barcode');
       if (state.tags.has('digicam')) active.push('afBox', 'dateBox');
       if (state.tags.has('wuxia')) active.push('wuxiaFrame', 'wuxiaText');
@@ -245,12 +268,10 @@
         } else {
           src = state.bgMedia.img;
         }
-        // 화면에 꽉 차게 그리기 (Cover)
         const scale = Math.max(canvas.width / src.width, canvas.height / src.height);
         const w = src.width * scale, h = src.height * scale;
         ctx.drawImage(src, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
       } else {
-        // 배경이 없을 때 기본 패턴
         ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
         for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
         for(let i=0; i<canvas.height; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
@@ -258,18 +279,43 @@
 
       // --- [2단계: 어둡기 처리 (테마별 무드)] ---
       if (state.tags.has('cyber')) { ctx.fillStyle = 'rgba(5,0,10,0.4)'; ctx.fillRect(0,0,canvas.width,canvas.height); }
-      if (state.tags.has('wuxia')) { ctx.fillStyle = 'rgba(20,10,0,0.5)'; ctx.fillRect(0,0,canvas.width,canvas.height); } // 무협은 탁하고 붉은빛
+      if (state.tags.has('wuxia')) { ctx.fillStyle = 'rgba(20,10,0,0.5)'; ctx.fillRect(0,0,canvas.width,canvas.height); } 
 
       // --- [3단계: 위젯 렌더링] ---
       const activeWidgets = getActiveWidgets();
       
-      // renderOrder 배열 순서대로 그려서 레이어 우선순위를 맞춤
       renderOrder.forEach(key => {
         if (!activeWidgets.includes(key)) return;
         const it = widgets[key];
         ctx.save();
 
         switch(key) {
+          // ⭐ [공통 위젯] 시나리오 제목 (Session Card Title) ⭐
+          case 'titleBox':
+            ctx.font = `bold 75px "${state.titleFont}"`;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top'; // 바운딩 박스(드래그) 계산을 쉽게 하기 위해 top 정렬
+            
+            // 글자 길이에 맞춰 박스(위젯)의 넓이를 동기화 (글이 길어져도 잡고 끌 수 있음)
+            const textWidth = ctx.measureText(state.title).width;
+            it.w = textWidth;
+            it.h = 90; 
+
+            // 배경이 밝아도 제목이 잘 보이도록 그림자 세팅 (세션카드 국룰)
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(state.title, it.x, it.y);
+            
+            // 그림자 초기화
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            break;
+
           // 💻 사이버펑크: 콘솔창
           case 'console':
             ctx.fillStyle = 'rgba(0,0,5,0.8)'; ctx.fillRect(it.x, it.y, it.w, it.h);
@@ -280,8 +326,6 @@
             ctx.fillStyle = '#00ffcc'; ctx.font = '14px "Noto Sans KR"';
             ctx.fillText(`> USER_A: ${state.nameA}`, it.x + 10, it.y + 50);
             ctx.fillText(`> USER_B: ${state.nameB}`, it.x + 10, it.y + 80);
-            
-            // 깜빡이는 커서
             if (prog % 0.1 > 0.05) ctx.fillRect(it.x + 10, it.y + 110, 10, 15);
             break;
             
@@ -296,7 +340,7 @@
             ctx.fillText('DPA-OVERRIDE', it.x + it.w/2, it.y + 60);
             break;
 
-          // 📷 디카: AF 포커스 (기획자님 원본 로직)
+          // 📷 디카: AF 포커스
           case 'afBox':
             ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
             ctx.globalAlpha = Math.sin(prog * Math.PI * 4) * 0.3 + 0.7;
@@ -314,15 +358,12 @@
             ctx.fillText('2026.10.08 PM 11:24', it.x, it.y + 20);
             break;
 
-          // 🐉 무협/동양풍: 전통 창틀 느낌의 프레임
+          // 🐉 무협/동양풍: 프레임
           case 'wuxiaFrame':
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)'; // 금색
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)'; 
             ctx.lineWidth = 2;
-            // 겉 테두리
             ctx.strokeRect(it.x, it.y, it.w, it.h);
-            // 안쪽 테두리
             ctx.strokeRect(it.x + 10, it.y + 10, it.w - 20, it.h - 20);
-            // 모서리 장식
             const corner = 30;
             ctx.fillRect(it.x, it.y, corner, corner);
             ctx.fillRect(it.x + it.w - corner, it.y, corner, corner);
@@ -335,13 +376,10 @@
             ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(it.x, it.y, it.w, it.h);
             ctx.fillStyle = '#fff'; ctx.font = 'bold 28px "Gowun Batang"';
             ctx.textAlign = 'center';
-            // 세로쓰기를 위한 강제 줄바꿈 처리
             const charsA = state.nameA.split('');
             const charsB = state.nameB.split('');
             charsA.forEach((c, i) => ctx.fillText(c, it.x + 20, it.y + 40 + i*35));
             charsB.forEach((c, i) => ctx.fillText(c, it.x + 40, it.y + 150 + i*35));
-            
-            // 붉은 낙관(도장) 효과
             ctx.fillStyle = '#8b0000'; ctx.fillRect(it.x + 15, it.y + it.h - 40, 30, 30);
             ctx.fillStyle = '#fff'; ctx.font = '10px "Nanum Myeongjo"'; ctx.fillText('연', it.x + 30, it.y + it.h - 20);
             break;
@@ -360,10 +398,14 @@
             break;
         }
 
-        // 드래그 중인 아이템은 흰색 점선 테두리 표시
         if (draggingItem === key && !isExporting) {
           ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
-          ctx.strokeRect(it.x-2, it.y-2, it.w+4, it.h+4);
+          // textBaseline='top' 을 사용한 titleBox는 위치가 약간 다름
+          if(key === 'titleBox') {
+            ctx.strokeRect(it.x - 2, it.y - 2, it.w + 4, it.h + 4);
+          } else {
+            ctx.strokeRect(it.x - 2, it.y - 2, it.w + 4, it.h + 4);
+          }
         }
         ctx.restore();
       });
@@ -372,7 +414,6 @@
     // ==========================================
     // 6. UI 이벤트 (태그, 텍스트 입력, 미디어 처리)
     // ==========================================
-    // 태그 토글 로직
     document.querySelectorAll('.tag-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tag = btn.dataset.tag;
@@ -383,26 +424,27 @@
           state.tags.add(tag);
           btn.classList.add('active');
         }
-        // 태그에 따라 어울리는 위젯을 최상단으로 배열 재조정
         const activeWidgets = getActiveWidgets();
         renderOrder = [...new Set([...renderOrder, ...activeWidgets])]; 
       });
     });
 
-    // 텍스트 동기화
-    ['valNameA', 'valNameB', 'valQuote'].forEach(id => {
+    ['valNameA', 'valNameB', 'valQuote', 'valTitle'].forEach(id => {
       document.getElementById(id).addEventListener('input', e => {
         const key = id.replace('val', '');
         state[key.charAt(0).toLowerCase() + key.slice(1)] = e.target.value;
       });
     });
+    
+    // ⭐ 타이틀 폰트 변경 이벤트
+    document.getElementById('valTitleFont').addEventListener('change', e => {
+      state.titleFont = e.target.value;
+    });
 
-    // 위치 초기화
     document.getElementById('btnReset').addEventListener('click', () => {
       widgets = JSON.parse(JSON.stringify(defaultWidgets));
     });
 
-    // 배경 GIF/이미지 디코더 (기획자님 로직 그대로)
     document.getElementById('bgInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -436,17 +478,20 @@
       reader.readAsDataURL(file);
     });
 
-    // 애니메이션 루프 실행
     function startLoop() {
       if(previewTimer) clearInterval(previewTimer);
       previewTimer = setInterval(() => {
         if (!isExporting) { animProgress = (animProgress + 0.007) % 1; draw(animProgress); }
       }, 30);
     }
-    startLoop();
+
+    // 폰트 로드 완료 후 렌더링 시작 (글자 팝인 방지)
+    document.fonts.ready.then(() => {
+      startLoop();
+    });
 
     // ==========================================
-    // 7. MP4 / GIF 고화질 내보내기 (기존 코드 완벽 보존)
+    // 7. MP4 / GIF 고화질 내보내기 
     // ==========================================
     const bar = document.getElementById('loadingBar');
     const fill = document.getElementById('progressFill');
