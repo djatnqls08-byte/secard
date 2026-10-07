@@ -3,67 +3,154 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>도파 세션카드 메이커</title>
+  <title>나만의 페어틀 메이커</title>
+  
+  <!-- Fabric.js (자유 배치/회전) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  <!-- Gifler (캔버스에서 GIF 움짤을 움직이게 해주는 마법!) -->
   <script src="https://unpkg.com/gifler@0.1.0/gifler.min.js"></script>
+  
+  <!-- 구글 폰트 예시 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Myeongjo:wght@700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
-    body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: #121212; color: white; display: flex; flex-direction: column; font-family: sans-serif; }
-    .canvas-container-wrapper { flex: 0 0 45vh; display: flex; justify-content: center; align-items: center; background-color: #1a1a1a; border-bottom: 1px solid #333; }
-    canvas { box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    .drawer { flex: 1; background-color: #222; border-radius: 20px 20px 0 0; margin-top: -15px; z-index: 10; display: flex; flex-direction: column; padding: 20px; }
+    /* CSS: 화면을 꽉 채우고 스크롤을 막아 모바일 앱처럼 만듭니다. */
+    body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: #121212; color: white; display: flex; flex-direction: column; font-family: 'Noto Sans KR', sans-serif; }
     
-    /* 탭 메뉴 */
-    .tab-menu { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 15px; border-bottom: 1px solid #333; white-space: nowrap; }
-    .tab-btn { background: #333; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; font-size: 14px; }
+    /* 상단 캔버스 영역 */
+    .canvas-container-wrapper { flex: 0 0 45vh; display: flex; justify-content: center; align-items: center; background-color: #1a1a1a; border-bottom: 1px solid #333; position: relative; }
+    canvas { box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    
+    /* 팔레트 (자동 색상 추출 느낌 낼 버튼) */
+    .btn-palette { position: absolute; bottom: 10px; right: 10px; background: #333; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+
+    /* 하단 에디터 영역 (마법의 서랍) */
+    .drawer { flex: 1; background-color: #222; border-radius: 20px 20px 0 0; margin-top: -15px; z-index: 10; display: flex; flex-direction: column; padding: 15px; }
+    
+    /* 가로 스와이프 탭 메뉴 */
+    .tab-menu { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid #333; white-space: nowrap; flex-shrink: 0; }
+    .tab-menu::-webkit-scrollbar { display: none; } /* 스크롤바 숨김 */
+    .tab-btn { background: #333; color: white; border: none; padding: 10px 18px; border-radius: 25px; font-weight: bold; font-size: 14px; cursor: pointer; }
     .tab-btn.active { background: #ff4757; }
     
-    /* 버튼 UI */
-    .btn-upload { background: #ff4757; color: white; border: none; padding: 15px; border-radius: 15px; font-weight: bold; font-size: 16px; width: 100%; text-align: center; display: block; cursor: pointer; margin-top: 15px; box-sizing: border-box; }
-    .btn-frame { background: #4CAF50; } /* 틀에 사진 넣기 전용 버튼 (초록색) */
+    /* 탭 내용이 들어갈 곳 */
+    .tab-content { flex: 1; overflow-y: auto; padding-top: 15px; display: none; }
+    .tab-content.active { display: block; }
+    
+    /* 버튼 공통 스타일 */
+    .btn-action { background: #ff4757; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 15px; width: 100%; text-align: center; display: block; cursor: pointer; margin-bottom: 10px; box-sizing: border-box; }
+    .btn-frame { background: #4CAF50; }
+    .btn-download { background: #00bcd4; }
     input[type="file"] { display: none; }
+
+    /* 텍스트 꾸미기 툴바 */
+    .text-toolbar { display: flex; flex-direction: column; gap: 10px; }
+    .font-selector { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 5px; }
+    .font-icon { width: 50px; height: 50px; border-radius: 10px; background: #444; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; border: 2px solid transparent; }
+    .font-icon.selected { border-color: #ff4757; }
+    
+    .slider-group { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+    .slider-group input[type="color"] { width: 40px; height: 30px; border: none; background: none; }
+    .slider-group input[type="range"] { flex: 1; }
   </style>
 </head>
 <body>
 
-  <!-- 상단 캔버스 -->
+  <!-- ==================== 상단 캔버스 ==================== -->
   <div class="canvas-container-wrapper">
     <canvas id="mainCanvas" width="800" height="600"></canvas>
+    <!-- 장식용 팔레트 버튼 (스포이트 기능 들어갈 자리) -->
+    <button class="btn-palette" onclick="alert('🎨 사진에서 컬러 추출(예정)')">🎨</button>
   </div>
 
-  <!-- 하단 서랍 -->
+  <!-- ==================== 하단 에디터 (서랍) ==================== -->
   <div class="drawer">
-    <div class="tab-menu">
-      <button class="tab-btn active">📸 배경/사진</button>
-      <button class="tab-btn">👑 프레임</button>
-      <button class="tab-btn">✨ 장식</button>
-      <button class="tab-btn">🔤 텍스트</button>
+    
+    <!-- 서랍 탭 메뉴 -->
+    <div class="tab-menu" id="tabMenu">
+      <button class="tab-btn active" data-target="tab-media">📸 이미지</button>
+      <button class="tab-btn" data-target="tab-text">🔤 텍스트</button>
+      <button class="tab-btn" data-target="tab-effect">✨ 효과/저장</button>
     </div>
 
-    <!-- 일반 사진/GIF 추가 버튼 -->
-    <label class="btn-upload">
-      ➕ 내 폰에서 사진/GIF 올리기
-      <input type="file" id="imageUploader" accept="image/*, image/gif">
-    </label>
-
-    <!-- 틀(프레임)을 선택했을 때만 나타나는 사진 넣기 버튼 -->
-    <div id="frameActionBox" style="display: none;">
-      <label class="btn-upload btn-frame">
-        🖼️ 선택한 틀 안에 사진 쏙! 넣기
-        <input type="file" id="frameUploader" accept="image/*, image/gif">
+    <!-- [1] 미디어 탭 (사진, GIF, 틀) -->
+    <div class="tab-content active" id="tab-media">
+      <label class="btn-action">
+        ➕ 갤러리에서 사진/GIF 추가
+        <input type="file" id="imageUploader" accept="image/*, image/gif">
       </label>
-      <p style="font-size: 12px; color: #888; text-align: center; margin-top: 10px;">사진이 틀 뒤로 쏙 들어갑니다. 두 손가락으로 위치를 맞춰보세요!</p>
+      
+      <!-- 틀을 선택했을 때만 나타나는 구역 -->
+      <div id="frameActionBox" style="display: none; background: rgba(76, 175, 80, 0.1); padding: 10px; border-radius: 10px; border: 1px dashed #4CAF50;">
+        <p style="font-size: 13px; color: #4CAF50; margin-top: 0;">✅ 템플릿(틀)이 선택되었습니다!</p>
+        <label class="btn-action btn-frame" style="margin-bottom: 0;">
+          🖼️ 이 틀 안으로 사진 쏙! 넣기
+          <input type="file" id="frameUploader" accept="image/*, image/gif">
+        </label>
+      </div>
     </div>
+
+    <!-- [2] 텍스트 탭 -->
+    <div class="tab-content" id="tab-text">
+      <button class="btn-action" id="btnAddText" style="background:#5352ed;">📝 텍스트 추가하기</button>
+      
+      <div id="textEditor" class="text-toolbar" style="display: none; margin-top: 15px; padding: 15px; background: #1e1e1e; border-radius: 10px;">
+        <p style="margin:0 0 10px 0; font-size:14px; font-weight:bold;">글씨체 스타일 (인스타형)</p>
+        <!-- 인스타 스토리형 폰트 선택기 -->
+        <div class="font-selector" id="fontSelector">
+          <div class="font-icon selected" style="font-family: 'Noto Sans KR';" data-font="Noto Sans KR">가</div>
+          <div class="font-icon" style="font-family: 'Nanum Myeongjo';" data-font="Nanum Myeongjo">가</div>
+          <div class="font-icon" style="font-family: 'Black Han Sans';" data-font="Black Han Sans">가</div>
+        </div>
+
+        <hr style="border-color:#333; margin:10px 0;">
+        
+        <!-- 텍스트 효과 슬라이더 -->
+        <div class="slider-group">
+          <span>색상</span>
+          <input type="color" id="textColor" value="#ffffff">
+        </div>
+        <div class="slider-group">
+          <span>테두리(Stroke)</span>
+          <input type="color" id="strokeColor" value="#ff4757">
+          <input type="range" id="strokeWidth" min="0" max="20" value="0">
+        </div>
+        <div class="slider-group">
+          <span>그림자(Glow)</span>
+          <input type="range" id="shadowBlur" min="0" max="50" value="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- [3] 효과/저장 탭 -->
+    <div class="tab-content" id="tab-effect">
+      <button class="btn-action" style="background:#ffa502;" onclick="applyFilter('grayscale')">🎞️ 사진 흑백 필터 씌우기</button>
+      <button class="btn-action" style="background:#ffa502;" onclick="applyFilter('sepia')">🎞️ 사진 세피아 필터 씌우기</button>
+      <br>
+      <button class="btn-action btn-download" id="btnDownload">💾 완성된 이미지 저장(PNG)</button>
+    </div>
+
   </div>
 
+  <!-- ==================== JavaScript 로직 ==================== -->
   <script>
-    const canvas = new fabric.Canvas('mainCanvas', { backgroundColor: '#ffffff' });
+    const canvas = new fabric.Canvas('mainCanvas', { backgroundColor: '#2d3436' });
 
-    // 1. 캔버스에서 아이템을 터치하면 '틀에 사진넣기' 버튼 띄우기
-    canvas.on('selection:created', () => document.getElementById('frameActionBox').style.display = 'block');
-    canvas.on('selection:updated', () => document.getElementById('frameActionBox').style.display = 'block');
-    canvas.on('selection:cleared', () => document.getElementById('frameActionBox').style.display = 'none');
+    // ---------- 탭 전환 로직 ----------
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.target).classList.add('active');
+      });
+    });
 
-    // 이미지 로드 함수 (일반 사진 + GIF 공통)
+    // ---------- 이미지/GIF 업로드 로직 ----------
     function addImageToCanvas(file, isFrameInsert = false) {
       if (!file) return;
       const reader = new FileReader();
@@ -75,9 +162,8 @@
           gifler(dataURL).frames('canvas', function(ctx, frame) {
             if (!canvas.gifImage) {
               fabric.Image.fromURL(dataURL, function(img) {
-                img.set({ left: 100, top: 100 });
                 if (isFrameInsert && activeObj) processFrameInsert(img, activeObj);
-                else { canvas.add(img); canvas.setActiveObject(img); }
+                else { img.set({ left: 100, top: 100 }); canvas.add(img); canvas.setActiveObject(img); }
                 canvas.gifImage = img; 
               });
             } else {
@@ -87,33 +173,137 @@
           });
         } else {
           fabric.Image.fromURL(dataURL, function(img) {
-            img.scaleToWidth(300);
-            img.set({ left: 100, top: 100 });
+            img.scaleToWidth(400); // 캔버스 핏에 맞춤
             if (isFrameInsert && activeObj) processFrameInsert(img, activeObj);
-            else { canvas.add(img); canvas.setActiveObject(img); }
+            else { img.set({ left: 100, top: 100 }); canvas.add(img); canvas.setActiveObject(img); }
           });
         }
       };
       reader.readAsDataURL(file);
     }
 
-    // 스마트 프레임 처리 (사진을 틀 뒤로 보내고 크기 맞춤)
+    // 스마트 프레임: 사진을 틀 '뒤'에 넣고, 필요하면 클리핑
     function processFrameInsert(newImg, frameObj) {
-      // 새 사진을 프레임 중앙에 배치하고 맨 뒤로 보냄 (투명한 구멍 사이로 보이게)
       newImg.set({
-        left: frameObj.left,
-        top: frameObj.top,
-        scaleX: frameObj.scaleX,
-        scaleY: frameObj.scaleY
+        left: frameObj.left, top: frameObj.top,
+        scaleX: frameObj.scaleX, scaleY: frameObj.scaleY,
+        angle: frameObj.angle
       });
       canvas.add(newImg);
-      newImg.sendToBack(); 
-      canvas.setActiveObject(newImg); // 사진 위치 조정하기 편하게 바로 선택해줌
+      newImg.sendToBack(); // 빈 틀 모양 사이로 보이게 뒤로 밀어넣기
+      canvas.setActiveObject(newImg);
     }
 
-    // 버튼 이벤트 연결
     document.getElementById('imageUploader').addEventListener('change', (e) => addImageToCanvas(e.target.files[0]));
     document.getElementById('frameUploader').addEventListener('change', (e) => addImageToCanvas(e.target.files[0], true));
+
+    // ---------- 텍스트 추가 & 에디터 로직 ----------
+    const textEditor = document.getElementById('textEditor');
+    
+    document.getElementById('btnAddText').addEventListener('click', () => {
+      const text = new fabric.IText('더블클릭해서 수정!', {
+        left: 100, top: 200, fill: '#ffffff',
+        fontFamily: 'Noto Sans KR', fontSize: 50,
+        stroke: '#ff4757', strokeWidth: 0,
+        shadow: new fabric.Shadow({ color: '#ff4757', blur: 0 })
+      });
+      canvas.add(text);
+      canvas.setActiveObject(text);
+      canvas.renderAll();
+    });
+
+    // 캔버스 객체 선택 시 하단 메뉴 변화 (틀 선택 / 텍스트 선택)
+    canvas.on('selection:created', handleSelection);
+    canvas.on('selection:updated', handleSelection);
+    canvas.on('selection:cleared', () => {
+      document.getElementById('frameActionBox').style.display = 'none';
+      textEditor.style.display = 'none';
+    });
+
+    function handleSelection(e) {
+      const obj = e.selected[0];
+      // 텍스트를 선택했을 때
+      if (obj.type === 'i-text') {
+        document.getElementById('frameActionBox').style.display = 'none';
+        textEditor.style.display = 'block'; // 텍스트 툴바 열기
+        // 현재 설정 가져오기
+        document.getElementById('textColor').value = obj.fill || '#ffffff';
+        document.getElementById('strokeWidth').value = obj.strokeWidth || 0;
+        document.getElementById('shadowBlur').value = obj.shadow ? obj.shadow.blur : 0;
+        
+        // 폰트 아이콘 하이라이트
+        document.querySelectorAll('.font-icon').forEach(icon => {
+          icon.classList.toggle('selected', icon.dataset.font === obj.fontFamily);
+        });
+      } 
+      // 이미지를 선택했을 때 (프레임으로 간주)
+      else if (obj.type === 'image') {
+        textEditor.style.display = 'none';
+        document.getElementById('frameActionBox').style.display = 'block'; // 쏙 넣기 버튼 띄우기
+      }
+    }
+
+    // 텍스트 속성 실시간 변경 (색상, 테두리, 폰트)
+    document.getElementById('textColor').addEventListener('input', (e) => {
+      const activeObj = canvas.getActiveObject();
+      if (activeObj && activeObj.type === 'i-text') { activeObj.set('fill', e.target.value); canvas.renderAll(); }
+    });
+    
+    document.getElementById('strokeWidth').addEventListener('input', (e) => {
+      const activeObj = canvas.getActiveObject();
+      const color = document.getElementById('strokeColor').value;
+      if (activeObj && activeObj.type === 'i-text') { 
+        activeObj.set({ strokeWidth: parseInt(e.target.value), stroke: color }); 
+        canvas.renderAll(); 
+      }
+    });
+
+    document.getElementById('shadowBlur').addEventListener('input', (e) => {
+      const activeObj = canvas.getActiveObject();
+      if (activeObj && activeObj.type === 'i-text') { 
+        activeObj.set('shadow', new fabric.Shadow({ color: '#ffffff', blur: parseInt(e.target.value) })); 
+        canvas.renderAll(); 
+      }
+    });
+
+    document.querySelectorAll('.font-icon').forEach(icon => {
+      icon.addEventListener('click', () => {
+        const activeObj = canvas.getActiveObject();
+        if (activeObj && activeObj.type === 'i-text') {
+          activeObj.set('fontFamily', icon.dataset.font);
+          canvas.renderAll();
+          document.querySelectorAll('.font-icon').forEach(i => i.classList.remove('selected'));
+          icon.classList.add('selected');
+        }
+      });
+    });
+
+    // ---------- 사진 필터 (흑백, 세피아) 로직 ----------
+    function applyFilter(type) {
+      const obj = canvas.getActiveObject();
+      if (!obj || obj.type !== 'image') return alert('필터를 적용할 사진을 먼저 선택해주세요!');
+      
+      let filter;
+      if (type === 'grayscale') filter = new fabric.Image.filters.Grayscale();
+      if (type === 'sepia') filter = new fabric.Image.filters.Sepia();
+      
+      obj.filters.push(filter);
+      obj.applyFilters();
+      canvas.renderAll();
+    }
+
+    // ---------- 다운로드 로직 ----------
+    document.getElementById('btnDownload').addEventListener('click', () => {
+      // 캔버스 선택 해제 (다운로드 시 테두리 안 보이게)
+      canvas.discardActiveObject(); 
+      canvas.renderAll();
+      
+      const dataURL = canvas.toDataURL({ format: 'png', quality: 1.0 });
+      const link = document.createElement('a');
+      link.download = '페어틀_' + new Date().getTime() + '.png';
+      link.href = dataURL;
+      link.click();
+    });
   </script>
 </body>
 </html>
