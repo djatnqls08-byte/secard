@@ -4,20 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>도파 세션카드 메이커</title>
-  
-  <!-- 1. Fabric.js (자유 배치/회전) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-  <!-- 2. Gifler (캔버스에서 GIF 움짤을 움직이게 해주는 마법!) -->
   <script src="https://unpkg.com/gifler@0.1.0/gifler.min.js"></script>
-  
   <style>
     body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: #121212; color: white; display: flex; flex-direction: column; font-family: sans-serif; }
-    .canvas-container-wrapper { flex: 0 0 45vh; display: flex; justify-content: center; align-items: center; background-color: #1e1e1e; }
+    .canvas-container-wrapper { flex: 0 0 45vh; display: flex; justify-content: center; align-items: center; background-color: #1a1a1a; border-bottom: 1px solid #333; }
     canvas { box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    .drawer { flex: 1; background-color: #252525; border-radius: 20px 20px 0 0; margin-top: -15px; z-index: 10; display: flex; flex-direction: column; padding: 20px; }
-    .btn-upload { background: #ff4757; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; margin-bottom: 10px; width: 100%; }
-    /* 첨부파일 input은 못생겼으니 숨겨둡니다 */
-    #imageUploader { display: none; }
+    .drawer { flex: 1; background-color: #222; border-radius: 20px 20px 0 0; margin-top: -15px; z-index: 10; display: flex; flex-direction: column; padding: 20px; }
+    
+    /* 탭 메뉴 */
+    .tab-menu { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 15px; border-bottom: 1px solid #333; white-space: nowrap; }
+    .tab-btn { background: #333; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; font-size: 14px; }
+    .tab-btn.active { background: #ff4757; }
+    
+    /* 버튼 UI */
+    .btn-upload { background: #ff4757; color: white; border: none; padding: 15px; border-radius: 15px; font-weight: bold; font-size: 16px; width: 100%; text-align: center; display: block; cursor: pointer; margin-top: 15px; box-sizing: border-box; }
+    .btn-frame { background: #4CAF50; } /* 틀에 사진 넣기 전용 버튼 (초록색) */
+    input[type="file"] { display: none; }
   </style>
 </head>
 <body>
@@ -27,63 +30,90 @@
     <canvas id="mainCanvas" width="800" height="600"></canvas>
   </div>
 
-  <!-- 하단 마법의 서랍 -->
+  <!-- 하단 서랍 -->
   <div class="drawer">
-    <h3 style="margin-top:0;">📂 파일 올리기 테스트</h3>
-    <p style="color:#aaa; font-size:14px;">일반 사진(JPG/PNG)은 물론이고, GIF 움짤도 올려보세요! 캔버스 안에서 살아 움직입니다.</p>
-    
-    <!-- 예쁜 버튼을 누르면 숨겨진 input이 작동하도록 연결 -->
-    <label class="btn-upload" style="text-align: center; display: block; cursor: pointer;">
-      내 폰에서 사진/GIF 불러오기 📸
+    <div class="tab-menu">
+      <button class="tab-btn active">📸 배경/사진</button>
+      <button class="tab-btn">👑 프레임</button>
+      <button class="tab-btn">✨ 장식</button>
+      <button class="tab-btn">🔤 텍스트</button>
+    </div>
+
+    <!-- 일반 사진/GIF 추가 버튼 -->
+    <label class="btn-upload">
+      ➕ 내 폰에서 사진/GIF 올리기
       <input type="file" id="imageUploader" accept="image/*, image/gif">
     </label>
+
+    <!-- 틀(프레임)을 선택했을 때만 나타나는 사진 넣기 버튼 -->
+    <div id="frameActionBox" style="display: none;">
+      <label class="btn-upload btn-frame">
+        🖼️ 선택한 틀 안에 사진 쏙! 넣기
+        <input type="file" id="frameUploader" accept="image/*, image/gif">
+      </label>
+      <p style="font-size: 12px; color: #888; text-align: center; margin-top: 10px;">사진이 틀 뒤로 쏙 들어갑니다. 두 손가락으로 위치를 맞춰보세요!</p>
+    </div>
   </div>
 
   <script>
-    // 캔버스 세팅
     const canvas = new fabric.Canvas('mainCanvas', { backgroundColor: '#ffffff' });
 
-    // 파일 업로드 기능
-    document.getElementById('imageUploader').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+    // 1. 캔버스에서 아이템을 터치하면 '틀에 사진넣기' 버튼 띄우기
+    canvas.on('selection:created', () => document.getElementById('frameActionBox').style.display = 'block');
+    canvas.on('selection:updated', () => document.getElementById('frameActionBox').style.display = 'block');
+    canvas.on('selection:cleared', () => document.getElementById('frameActionBox').style.display = 'none');
 
+    // 이미지 로드 함수 (일반 사진 + GIF 공통)
+    function addImageToCanvas(file, isFrameInsert = false) {
+      if (!file) return;
       const reader = new FileReader();
       reader.onload = function(f) {
         const dataURL = f.target.result;
+        const activeObj = canvas.getActiveObject();
 
-        // 만약 올린 파일이 GIF 움짤이라면?
         if (file.type === 'image/gif') {
           gifler(dataURL).frames('canvas', function(ctx, frame) {
-            // 움짤 프레임을 계속해서 캔버스에 새로고침(업데이트) 해줍니다.
             if (!canvas.gifImage) {
-              // 처음 한 번만 Fabric 이미지로 등록
               fabric.Image.fromURL(dataURL, function(img) {
                 img.set({ left: 100, top: 100 });
-                // 사용자가 맘대로 늘리고 돌리게 설정
-                canvas.add(img);
+                if (isFrameInsert && activeObj) processFrameInsert(img, activeObj);
+                else { canvas.add(img); canvas.setActiveObject(img); }
                 canvas.gifImage = img; 
               });
             } else {
-              // 다음 프레임 그리기
               canvas.gifImage.setElement(frame.buffer);
               canvas.renderAll();
             }
           });
-        } 
-        // 그냥 멈춰있는 일반 사진(PNG, JPG)이라면?
-        else {
+        } else {
           fabric.Image.fromURL(dataURL, function(img) {
-            // 크기가 너무 크면 캔버스에 맞게 줄여주기
-            img.scaleToWidth(400); 
-            img.set({ left: 50, top: 50 });
-            canvas.add(img); // 캔버스에 쏙!
-            canvas.setActiveObject(img); // 올리자마자 바로 조작 가능하게 콕 찝어줌
+            img.scaleToWidth(300);
+            img.set({ left: 100, top: 100 });
+            if (isFrameInsert && activeObj) processFrameInsert(img, activeObj);
+            else { canvas.add(img); canvas.setActiveObject(img); }
           });
         }
       };
       reader.readAsDataURL(file);
-    });
+    }
+
+    // 스마트 프레임 처리 (사진을 틀 뒤로 보내고 크기 맞춤)
+    function processFrameInsert(newImg, frameObj) {
+      // 새 사진을 프레임 중앙에 배치하고 맨 뒤로 보냄 (투명한 구멍 사이로 보이게)
+      newImg.set({
+        left: frameObj.left,
+        top: frameObj.top,
+        scaleX: frameObj.scaleX,
+        scaleY: frameObj.scaleY
+      });
+      canvas.add(newImg);
+      newImg.sendToBack(); 
+      canvas.setActiveObject(newImg); // 사진 위치 조정하기 편하게 바로 선택해줌
+    }
+
+    // 버튼 이벤트 연결
+    document.getElementById('imageUploader').addEventListener('change', (e) => addImageToCanvas(e.target.files[0]));
+    document.getElementById('frameUploader').addEventListener('change', (e) => addImageToCanvas(e.target.files[0], true));
   </script>
 </body>
 </html>
