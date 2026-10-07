@@ -1,687 +1,89 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TRPG 자유배치 세션카드 에디터</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <!-- Google Fonts: 다양한 테마에 어울리는 폰트 로드 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Cinzel:wght@700&family=Gowun+Dodum&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;500;900&family=Poor+Story&display=swap" rel="stylesheet">
-
-    <style>
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        
-        /* 스크롤바 커스텀 */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-
-        /* 미리보기 영역 (캔버스 역할) */
-        #workspace-container {
-            width: 100%;
-            /* 16:9 비율 유지 */
-            aspect-ratio: 16 / 9;
-            background-image: repeating-linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b), repeating-linear-gradient(45deg, #1e293b 25%, #0f172a 25%, #0f172a 75%, #1e293b 75%, #1e293b);
-            background-position: 0 0, 10px 10px;
-            background-size: 20px 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            touch-action: none; /* 모바일 드래그 시 화면 스크롤 방지 */
-        }
-
-        /* 드래그 가능한 텍스트 요소 */
-        .draggable-text {
-            position: absolute;
-            cursor: grab;
-            user-select: none;
-            white-space: pre-wrap;
-            word-break: keep-all;
-            /* 텍스트 렌더링 품질 향상 */
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
-            padding: 4px;
-            border: 1px dashed transparent;
-            transform: translate(-50%, -50%); /* 중심점 기준 배치 */
-            line-height: 1.2;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* 기본 가독성 그림자 */
-        }
-        
-        .draggable-text:hover {
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .draggable-text:active {
-            cursor: grabbing;
-        }
-
-        .draggable-text.selected {
-            border-color: #ec4899; /* 핑크색 하이라이트 */
-            background-color: rgba(236, 72, 153, 0.1);
-        }
-
-        /* 템플릿 오버레이 효과 클래스들 */
-        .tpl-none { display: none; }
-        .tpl-cinematic {
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 40%, transparent 100%);
-        }
-        .tpl-vintage {
-            background-color: rgba(139, 69, 19, 0.3);
-            mix-blend-mode: multiply;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
-        }
-        .tpl-vintage-border {
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            margin: 4%;
-            height: 92%;
-            width: 92%;
-        }
-        .tpl-cyberpunk {
-            background: linear-gradient(45deg, rgba(255,0,128,0.2), rgba(0,255,255,0.2));
-            box-shadow: inset 0 0 30px rgba(0,255,255,0.3);
-            border: 1px solid rgba(0,255,255,0.5);
-            margin: 2%;
-            height: 96%;
-            width: 96%;
-        }
-        .tpl-letterbox {
-            border-top: 10% solid black;
-            border-bottom: 10% solid black;
-            height: 100%;
-            width: 100%;
-        }
-
-        /* 컨트롤 패널 폰트 */
-        .font-sans { font-family: 'Noto Sans KR', sans-serif; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>나만의 페어틀 메이커</title>
+  
+  <!-- 1. Fabric.js (자유 배치/회전) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  <!-- 2. Gifler (캔버스에서 GIF 움짤을 움직이게 해주는 마법!) -->
+  <script src="https://unpkg.com/gifler@0.1.0/gifler.min.js"></script>
+  
+  <style>
+    body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: #121212; color: white; display: flex; flex-direction: column; font-family: sans-serif; }
+    .canvas-container-wrapper { flex: 0 0 45vh; display: flex; justify-content: center; align-items: center; background-color: #1e1e1e; }
+    canvas { box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .drawer { flex: 1; background-color: #252525; border-radius: 20px 20px 0 0; margin-top: -15px; z-index: 10; display: flex; flex-direction: column; padding: 20px; }
+    .btn-upload { background: #ff4757; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; margin-bottom: 10px; width: 100%; }
+    /* 첨부파일 input은 못생겼으니 숨겨둡니다 */
+    #imageUploader { display: none; }
+  </style>
 </head>
-<body class="h-screen flex flex-col md:flex-row overflow-hidden font-sans">
+<body>
 
-    <!-- 좌측/상단: 워크스페이스 (미리보기) 영역 -->
-    <main class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 bg-slate-900 overflow-hidden relative">
-        <!-- 워크스페이스 컨테이너 -->
-        <div id="workspace-wrapper" class="w-full max-w-5xl flex justify-center items-center">
-            
-            <div id="workspace-container" class="rounded-sm border border-slate-700">
-                <!-- 배경 이미지 -->
-                <img id="bg-image" src="" class="absolute inset-0 w-full h-full object-cover hidden" draggable="false" />
-                
-                <!-- 템플릿 오버레이 효과 -->
-                <div id="template-overlay" class="absolute inset-0 pointer-events-none tpl-none"></div>
-                <div id="template-border" class="absolute inset-0 pointer-events-none tpl-none"></div>
+  <!-- 상단 캔버스 -->
+  <div class="canvas-container-wrapper">
+    <canvas id="mainCanvas" width="800" height="600"></canvas>
+  </div>
 
-                <!-- 드래그 가능한 텍스트들 (초기 위치는 %로 설정) -->
-                <!-- x, y 데이터 속성은 % 값 (중앙 기준) -->
-                <div id="text-title" class="draggable-text text-white font-bold" data-id="title" data-x="50" data-y="40" style="left: 50%; top: 40%; font-size: 6vw; font-family: 'Noto Sans KR'; color: #ffffff;">시나리오 제목</div>
-                
-                <div id="text-subtitle" class="draggable-text text-gray-200" data-id="subtitle" data-x="50" data-y="58" style="left: 50%; top: 58%; font-size: 2vw; font-family: 'Nanum Myeongjo'; color: #e2e8f0;">"여기에 부제나 멋진 명대사를 적어보세요."</div>
-                
-                <div id="text-gm" class="draggable-text text-gray-300" data-id="gm" data-x="85" data-y="85" style="left: 85%; top: 85%; font-size: 1.5vw; font-family: 'Gowun Dodum'; color: #cbd5e1; text-align: right;">GM 이름<br>PL 플레이어 이름</div>
-                
-                <div id="text-extra" class="draggable-text text-pink-300" data-id="extra" data-x="15" data-y="15" style="left: 15%; top: 15%; font-size: 1.2vw; font-family: 'Cinzel'; color: #f9a8d4;">Call of Cthulhu 7th Edition</div>
-            </div>
+  <!-- 하단 마법의 서랍 -->
+  <div class="drawer">
+    <h3 style="margin-top:0;">📂 파일 올리기 테스트</h3>
+    <p style="color:#aaa; font-size:14px;">일반 사진(JPG/PNG)은 물론이고, GIF 움짤도 올려보세요! 캔버스 안에서 살아 움직입니다.</p>
+    
+    <!-- 예쁜 버튼을 누르면 숨겨진 input이 작동하도록 연결 -->
+    <label class="btn-upload" style="text-align: center; display: block; cursor: pointer;">
+      내 폰에서 사진/GIF 불러오기 📸
+      <input type="file" id="imageUploader" accept="image/*, image/gif">
+    </label>
+  </div>
 
-        </div>
-        <p class="text-slate-500 text-sm mt-4 text-center"><i class="ph ph-hand-pointing"></i> 화면 안의 텍스트를 마우스나 터치로 자유롭게 이동할 수 있습니다.</p>
-    </main>
+  <script>
+    // 캔버스 세팅
+    const canvas = new fabric.Canvas('mainCanvas', { backgroundColor: '#ffffff' });
 
+    // 파일 업로드 기능
+    document.getElementById('imageUploader').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    <!-- 우측/하단: 컨트롤 패널 -->
-    <aside class="w-full md:w-[400px] bg-slate-800 border-l border-slate-700 flex flex-col h-1/2 md:h-full flex-shrink-0 z-10 shadow-2xl">
-        
-        <header class="p-5 border-b border-slate-700 bg-slate-800/95 sticky top-0 z-20 flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-black text-white tracking-tight">세션 카드 에디터</h1>
-                <p class="text-xs text-slate-400">자유 배치 & 고화질 렌더링</p>
-            </div>
-            <button id="btn-download" class="bg-pink-600 hover:bg-pink-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.6)]">
-                <i class="ph-bold ph-download-simple"></i> 저장
-            </button>
-        </header>
+      const reader = new FileReader();
+      reader.onload = function(f) {
+        const dataURL = f.target.result;
 
-        <div class="flex-1 overflow-y-auto p-5 space-y-8 no-scrollbar pb-24">
-            
-            <!-- 1. 배경 설정 -->
-            <section class="space-y-3">
-                <div class="flex items-center gap-2 text-pink-400 font-bold border-b border-slate-700 pb-2">
-                    <i class="ph-fill ph-image"></i> 배경 설정
-                </div>
-                
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">배경 이미지 업로드</label>
-                    <div class="relative w-full">
-                        <input type="file" id="input-bg" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                        <div class="w-full bg-slate-900 border border-slate-600 border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-slate-400 hover:text-white hover:border-pink-500 transition-colors">
-                            <i class="ph ph-upload-simple text-2xl mb-1"></i>
-                            <span class="text-xs">클릭하여 이미지 선택</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">오버레이 템플릿 필터 (분위기)</label>
-                    <select id="select-template" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500">
-                        <option value="none">효과 없음 (원본)</option>
-                        <option value="cinematic" selected>시네마틱 어두움 (하단 그라데이션)</option>
-                        <option value="vintage">빈티지 세피아 프레임</option>
-                        <option value="cyberpunk">사이버펑크 네온</option>
-                        <option value="letterbox">영화 레터박스 (위아래 검은띠)</option>
-                    </select>
-                </div>
-            </section>
-
-            <!-- 2. 텍스트 설정 공통 로직을 위한 동적 렌더링 타겟 -->
-            <section class="space-y-4">
-                <div class="flex items-center justify-between text-pink-400 font-bold border-b border-slate-700 pb-2">
-                    <div class="flex items-center gap-2"><i class="ph-fill ph-text-t"></i> 텍스트 설정</div>
-                    <span class="text-[10px] text-slate-500 bg-slate-900 px-2 py-0.5 rounded">항목을 눌러 수정</span>
-                </div>
-
-                <!-- 텍스트 아이템 컨트롤러들이 여기에 JS로 주입됩니다. -->
-                <div id="text-controls-container" class="space-y-3">
-                    <!-- Title Control -->
-                    <details class="bg-slate-900 border border-slate-700 rounded-lg group open:border-pink-500/50 transition-colors" open>
-                        <summary class="px-4 py-3 text-sm font-bold text-white cursor-pointer select-none list-none flex justify-between items-center">
-                            <span>시나리오 제목</span>
-                            <i class="ph ph-caret-down group-open:rotate-180 transition-transform"></i>
-                        </summary>
-                        <div class="p-4 pt-0 space-y-3 border-t border-slate-800 mt-2">
-                            <textarea id="ctrl-text-title" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white focus:border-pink-500 resize-none h-16" placeholder="텍스트 입력">시나리오 제목</textarea>
-                            
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1">폰트 (서체)</label>
-                                    <select id="ctrl-font-title" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white">
-                                        <option value="Noto Sans KR">노토 산스 (고딕)</option>
-                                        <option value="Nanum Myeongjo">나눔명조 (바탕)</option>
-                                        <option value="Black Han Sans" selected>검은고딕 (타이틀용)</option>
-                                        <option value="Gowun Dodum">고운돋움 (단정함)</option>
-                                        <option value="Poor Story">푸어스토리 (손글씨)</option>
-                                        <option value="Cinzel">Cinzel (영문 앤틱)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1">글자 색상</label>
-                                    <input type="color" id="ctrl-color-title" value="#ffffff" class="w-full h-[26px] bg-slate-800 border border-slate-600 rounded cursor-pointer">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1 flex justify-between">
-                                    <span>크기 조절</span> <span id="val-size-title">6</span>
-                                </label>
-                                <input type="range" id="ctrl-size-title" min="1" max="15" step="0.5" value="6" class="w-full accent-pink-500">
-                            </div>
-                        </div>
-                    </details>
-
-                    <!-- Subtitle Control -->
-                    <details class="bg-slate-900 border border-slate-700 rounded-lg group transition-colors">
-                        <summary class="px-4 py-3 text-sm font-bold text-white cursor-pointer select-none list-none flex justify-between items-center">
-                            <span>부제 / 명대사</span>
-                            <i class="ph ph-caret-down group-open:rotate-180 transition-transform"></i>
-                        </summary>
-                        <div class="p-4 pt-0 space-y-3 border-t border-slate-800 mt-2">
-                            <textarea id="ctrl-text-subtitle" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white focus:border-pink-500 resize-none h-16">"여기에 부제나 멋진 명대사를 적어보세요."</textarea>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1">폰트 (서체)</label>
-                                    <select id="ctrl-font-subtitle" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white">
-                                        <option value="Noto Sans KR">노토 산스 (고딕)</option>
-                                        <option value="Nanum Myeongjo" selected>나눔명조 (바탕)</option>
-                                        <option value="Black Han Sans">검은고딕 (타이틀용)</option>
-                                        <option value="Gowun Dodum">고운돋움 (단정함)</option>
-                                        <option value="Poor Story">푸어스토리 (손글씨)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1">글자 색상</label>
-                                    <input type="color" id="ctrl-color-subtitle" value="#e2e8f0" class="w-full h-[26px] bg-slate-800 border border-slate-600 rounded cursor-pointer">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1 flex justify-between">
-                                    <span>크기 조절</span> <span id="val-size-subtitle">2</span>
-                                </label>
-                                <input type="range" id="ctrl-size-subtitle" min="1" max="10" step="0.2" value="2" class="w-full accent-pink-500">
-                            </div>
-                        </div>
-                    </details>
-
-                    <!-- GM/PL Control -->
-                    <details class="bg-slate-900 border border-slate-700 rounded-lg group transition-colors">
-                        <summary class="px-4 py-3 text-sm font-bold text-white cursor-pointer select-none list-none flex justify-between items-center">
-                            <span>GM / 참여자 명단</span>
-                            <i class="ph ph-caret-down group-open:rotate-180 transition-transform"></i>
-                        </summary>
-                        <div class="p-4 pt-0 space-y-3 border-t border-slate-800 mt-2">
-                            <textarea id="ctrl-text-gm" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white focus:border-pink-500 resize-none h-16">GM 이름&#10;PL 플레이어 이름</textarea>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1">폰트 (서체)</label>
-                                    <select id="ctrl-font-gm" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white">
-                                        <option value="Noto Sans KR">노토 산스 (고딕)</option>
-                                        <option value="Nanum Myeongjo">나눔명조 (바탕)</option>
-                                        <option value="Gowun Dodum" selected>고운돋움 (단정함)</option>
-                                        <option value="Poor Story">푸어스토리 (손글씨)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1">글자 색상</label>
-                                    <input type="color" id="ctrl-color-gm" value="#cbd5e1" class="w-full h-[26px] bg-slate-800 border border-slate-600 rounded cursor-pointer">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1 flex justify-between">
-                                    <span>정렬</span>
-                                </label>
-                                <div class="flex gap-2">
-                                    <button class="btn-align flex-1 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-white" data-target="gm" data-align="left"><i class="ph ph-text-align-left"></i></button>
-                                    <button class="btn-align flex-1 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-white" data-target="gm" data-align="center"><i class="ph ph-text-align-center"></i></button>
-                                    <button class="btn-align flex-1 py-1 bg-pink-600 rounded text-xs text-white" data-target="gm" data-align="right"><i class="ph ph-text-align-right"></i></button>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1 flex justify-between">
-                                    <span>크기 조절</span> <span id="val-size-gm">1.5</span>
-                                </label>
-                                <input type="range" id="ctrl-size-gm" min="0.5" max="5" step="0.1" value="1.5" class="w-full accent-pink-500">
-                            </div>
-                        </div>
-                    </details>
-                    
-                    <!-- Extra/Rule Control -->
-                    <details class="bg-slate-900 border border-slate-700 rounded-lg group transition-colors">
-                        <summary class="px-4 py-3 text-sm font-bold text-white cursor-pointer select-none list-none flex justify-between items-center">
-                            <span>룰 / 추가 정보</span>
-                            <i class="ph ph-caret-down group-open:rotate-180 transition-transform"></i>
-                        </summary>
-                        <div class="p-4 pt-0 space-y-3 border-t border-slate-800 mt-2">
-                            <input type="text" id="ctrl-text-extra" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white focus:border-pink-500" value="Call of Cthulhu 7th Edition">
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1">폰트 (서체)</label>
-                                    <select id="ctrl-font-extra" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white">
-                                        <option value="Noto Sans KR">노토 산스 (고딕)</option>
-                                        <option value="Cinzel" selected>Cinzel (영문 앤틱)</option>
-                                        <option value="Nanum Myeongjo">나눔명조 (바탕)</option>
-                                        <option value="Black Han Sans">검은고딕</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1">글자 색상</label>
-                                    <input type="color" id="ctrl-color-extra" value="#f9a8d4" class="w-full h-[26px] bg-slate-800 border border-slate-600 rounded cursor-pointer">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1 flex justify-between">
-                                    <span>크기 조절</span> <span id="val-size-extra">1.2</span>
-                                </label>
-                                <input type="range" id="ctrl-size-extra" min="0.5" max="5" step="0.1" value="1.2" class="w-full accent-pink-500">
-                            </div>
-                        </div>
-                    </details>
-
-                </div>
-            </section>
-        </div>
-    </aside>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- Elements ---
-            const container = document.getElementById('workspace-container');
-            const bgImage = document.getElementById('bg-image');
-            const inputBg = document.getElementById('input-bg');
-            const selectTemplate = document.getElementById('select-template');
-            const templateOverlay = document.getElementById('template-overlay');
-            const templateBorder = document.getElementById('template-border');
-            const btnDownload = document.getElementById('btn-download');
-            
-            const texts = {
-                title: document.getElementById('text-title'),
-                subtitle: document.getElementById('text-subtitle'),
-                gm: document.getElementById('text-gm'),
-                extra: document.getElementById('text-extra')
-            };
-
-            // --- Background Image Upload ---
-            inputBg.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        bgImage.src = event.target.result;
-                        bgImage.classList.remove('hidden');
-                        // Hide grid background when image is loaded
-                        container.style.backgroundImage = 'none';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // --- Template Selection ---
-            selectTemplate.addEventListener('change', (e) => {
-                const val = e.target.value;
-                
-                // Reset classes
-                templateOverlay.className = 'absolute inset-0 pointer-events-none tpl-none';
-                templateBorder.className = 'absolute inset-0 pointer-events-none tpl-none';
-
-                if (val === 'cinematic') {
-                    templateOverlay.classList.remove('tpl-none');
-                    templateOverlay.classList.add('tpl-cinematic');
-                } else if (val === 'vintage') {
-                    templateOverlay.classList.remove('tpl-none');
-                    templateOverlay.classList.add('tpl-vintage');
-                    templateBorder.classList.remove('tpl-none');
-                    templateBorder.classList.add('tpl-vintage-border');
-                } else if (val === 'cyberpunk') {
-                    templateOverlay.classList.remove('tpl-none');
-                    templateOverlay.classList.add('tpl-cyberpunk');
-                } else if (val === 'letterbox') {
-                    templateBorder.classList.remove('tpl-none');
-                    templateBorder.classList.add('tpl-letterbox');
-                }
-            });
-            // Trigger initial
-            selectTemplate.dispatchEvent(new Event('change'));
-
-            // --- Text Controls Binding ---
-            const textIds = ['title', 'subtitle', 'gm', 'extra'];
-            
-            textIds.forEach(id => {
-                const node = texts[id];
-                
-                // Text input
-                const inputNode = document.getElementById(`ctrl-text-${id}`);
-                inputNode.addEventListener('input', (e) => {
-                    // Handle newlines correctly for HTML
-                    node.innerHTML = e.target.value.replace(/\n/g, '<br>');
-                });
-
-                // Font Family
-                const fontSelect = document.getElementById(`ctrl-font-${id}`);
-                fontSelect.addEventListener('change', (e) => {
-                    node.style.fontFamily = e.target.value;
-                });
-                node.style.fontFamily = fontSelect.value; // init
-
-                // Color
-                const colorInput = document.getElementById(`ctrl-color-${id}`);
-                colorInput.addEventListener('input', (e) => {
-                    node.style.color = e.target.value;
-                });
-
-                // Size
-                const sizeInput = document.getElementById(`ctrl-size-${id}`);
-                const sizeVal = document.getElementById(`val-size-${id}`);
-                sizeInput.addEventListener('input', (e) => {
-                    const vw = e.target.value;
-                    node.style.fontSize = `${vw}vw`;
-                    sizeVal.innerText = vw;
-                });
-
-                // Alignment (specific to elements with buttons like GM)
-                const alignBtns = document.querySelectorAll(`.btn-align[data-target="${id}"]`);
-                alignBtns.forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const align = btn.getAttribute('data-align');
-                        node.style.textAlign = align;
-                        
-                        // Update active button UI
-                        alignBtns.forEach(b => {
-                            b.classList.remove('bg-pink-600');
-                            b.classList.add('bg-slate-700');
-                        });
-                        btn.classList.add('bg-pink-600');
-                        btn.classList.remove('bg-slate-700');
-                    });
-                });
-            });
-
-            // --- Drag & Drop Logic (Touch & Mouse) ---
-            let isDragging = false;
-            let currentElement = null;
-            let startX, startY, initialLeft, initialTop;
-
-            const makeDraggable = (el) => {
-                const onDragStart = (e) => {
-                    if (e.target !== el) return;
-                    isDragging = true;
-                    currentElement = el;
-                    
-                    // Add selected visual feedback
-                    Object.values(texts).forEach(t => t.classList.remove('selected'));
-                    el.classList.add('selected');
-
-                    const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                    const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-                    
-                    startX = clientX;
-                    startY = clientY;
-                    
-                    // Get current positions in percentage from data attributes or style
-                    initialLeft = parseFloat(el.getAttribute('data-x'));
-                    initialTop = parseFloat(el.getAttribute('data-y'));
-                    
-                    document.addEventListener('mousemove', onDragMove, {passive: false});
-                    document.addEventListener('touchmove', onDragMove, {passive: false});
-                    document.addEventListener('mouseup', onDragEnd);
-                    document.addEventListener('touchend', onDragEnd);
-                };
-
-                const onDragMove = (e) => {
-                    if (!isDragging || currentElement !== el) return;
-                    e.preventDefault(); // Prevent scrolling on mobile while dragging
-
-                    const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                    const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-
-                    const dx = clientX - startX;
-                    const dy = clientY - startY;
-
-                    const rect = container.getBoundingClientRect();
-                    
-                    // Convert pixel delta to percentage delta
-                    const dxPercent = (dx / rect.width) * 100;
-                    const dyPercent = (dy / rect.height) * 100;
-
-                    let newLeft = initialLeft + dxPercent;
-                    let newTop = initialTop + dyPercent;
-
-                    // Clamp to edges
-                    newLeft = Math.max(0, Math.min(100, newLeft));
-                    newTop = Math.max(0, Math.min(100, newTop));
-
-                    el.style.left = `${newLeft}%`;
-                    el.style.top = `${newTop}%`;
-                    
-                    // Save back to data attributes for next drag
-                    el.setAttribute('data-x', newLeft);
-                    el.setAttribute('data-y', newTop);
-                };
-
-                const onDragEnd = () => {
-                    isDragging = false;
-                    currentElement = null;
-                    document.removeEventListener('mousemove', onDragMove);
-                    document.removeEventListener('touchmove', onDragMove);
-                    document.removeEventListener('mouseup', onDragEnd);
-                    document.removeEventListener('touchend', onDragEnd);
-                };
-
-                el.addEventListener('mousedown', onDragStart);
-                el.addEventListener('touchstart', onDragStart, {passive: false});
-            };
-
-            // Initialize draggable
-            Object.values(texts).forEach(makeDraggable);
-            
-            // Click outside to deselect
-            container.addEventListener('mousedown', (e) => {
-                if (e.target === container || e.target === bgImage || e.target === templateOverlay) {
-                    Object.values(texts).forEach(t => t.classList.remove('selected'));
-                }
-            });
-
-
-            // --- High-Resolution Canvas Export Logic ---
-            btnDownload.addEventListener('click', async () => {
-                // Ensure fonts are loaded before drawing
-                await document.fonts.ready;
-                
-                const originalBtnContent = btnDownload.innerHTML;
-                btnDownload.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> 생성 중...';
-                btnDownload.classList.add('opacity-50', 'cursor-not-allowed');
-
-                setTimeout(() => {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        // Set high resolution for download (1920x1080 - 16:9)
-                        const TARGET_W = 1920;
-                        const TARGET_H = 1080;
-                        canvas.width = TARGET_W;
-                        canvas.height = TARGET_H;
-
-                        // 1. Draw Background
-                        if (bgImage.src && bgImage.src !== window.location.href) {
-                            // Cover fit algorithm
-                            const imgRatio = bgImage.naturalWidth / bgImage.naturalHeight;
-                            const canvasRatio = TARGET_W / TARGET_H;
-                            let drawW, drawH, drawX, drawY;
-
-                            if (imgRatio > canvasRatio) {
-                                drawH = TARGET_H;
-                                drawW = bgImage.naturalWidth * (drawH / bgImage.naturalHeight);
-                                drawX = (TARGET_W - drawW) / 2;
-                                drawY = 0;
-                            } else {
-                                drawW = TARGET_W;
-                                drawH = bgImage.naturalHeight * (drawW / bgImage.naturalWidth);
-                                drawX = 0;
-                                drawY = (TARGET_H - drawH) / 2;
-                            }
-                            ctx.drawImage(bgImage, drawX, drawY, drawW, drawH);
-                        } else {
-                            // Default dark background if no image
-                            ctx.fillStyle = '#1e293b';
-                            ctx.fillRect(0, 0, TARGET_W, TARGET_H);
-                        }
-
-                        // 2. Draw Template Overlays (Simulating CSS)
-                        const tpl = selectTemplate.value;
-                        if (tpl === 'cinematic') {
-                            const grd = ctx.createLinearGradient(0, TARGET_H, 0, TARGET_H * 0.4);
-                            grd.addColorStop(0, "rgba(0,0,0,0.9)");
-                            grd.addColorStop(1, "transparent");
-                            ctx.fillStyle = grd;
-                            ctx.fillRect(0, 0, TARGET_W, TARGET_H);
-                        } 
-                        else if (tpl === 'vintage') {
-                            ctx.globalCompositeOperation = 'multiply';
-                            ctx.fillStyle = "rgba(139, 69, 19, 0.3)";
-                            ctx.fillRect(0, 0, TARGET_W, TARGET_H);
-                            ctx.globalCompositeOperation = 'source-over';
-                            
-                            // Border
-                            ctx.strokeStyle = "rgba(255, 215, 0, 0.5)";
-                            ctx.lineWidth = 15;
-                            const m = TARGET_W * 0.04; // 4% margin
-                            ctx.strokeRect(m, TARGET_H * 0.04, TARGET_W - (m*2), TARGET_H - (TARGET_H*0.08));
-                        }
-                        else if (tpl === 'cyberpunk') {
-                            const grd = ctx.createLinearGradient(0, 0, TARGET_W, TARGET_H);
-                            grd.addColorStop(0, "rgba(255,0,128,0.2)");
-                            grd.addColorStop(1, "rgba(0,255,255,0.2)");
-                            ctx.fillStyle = grd;
-                            ctx.fillRect(0, 0, TARGET_W, TARGET_H);
-                            
-                            ctx.strokeStyle = "rgba(0,255,255,0.8)";
-                            ctx.lineWidth = 8;
-                            const m = TARGET_W * 0.02;
-                            ctx.strokeRect(m, TARGET_H * 0.02, TARGET_W - (m*2), TARGET_H - (TARGET_H*0.04));
-                        }
-                        else if (tpl === 'letterbox') {
-                            ctx.fillStyle = "black";
-                            const barH = TARGET_H * 0.1; // 10%
-                            ctx.fillRect(0, 0, TARGET_W, barH);
-                            ctx.fillRect(0, TARGET_H - barH, TARGET_W, barH);
-                        }
-
-                        // 3. Draw Text
-                        // To map from DOM 'vw' font sizes to canvas pixels:
-                        // DOM 1vw = DOM_Width / 100.
-                        // So in Canvas: Canvas_Width / 100 * vw_value
-                        textIds.forEach(id => {
-                            const node = texts[id];
-                            const text = document.getElementById(`ctrl-text-${id}`).value;
-                            if (!text.trim()) return;
-
-                            const pxLeft = parseFloat(node.getAttribute('data-x')) / 100 * TARGET_W;
-                            const pxTop = parseFloat(node.getAttribute('data-y')) / 100 * TARGET_H;
-                            
-                            const vwSize = document.getElementById(`ctrl-size-${id}`).value;
-                            const pxFontSize = (vwSize * TARGET_W) / 100;
-                            
-                            const fontFamily = document.getElementById(`ctrl-font-${id}`).value;
-                            const fontColor = document.getElementById(`ctrl-color-${id}`).value;
-                            const align = node.style.textAlign || 'center';
-
-                            ctx.font = `${pxFontSize}px "${fontFamily}"`;
-                            ctx.fillStyle = fontColor;
-                            ctx.textAlign = align === 'left' ? 'left' : (align === 'right' ? 'right' : 'center');
-                            ctx.textBaseline = 'middle';
-                            
-                            // Text Shadow
-                            ctx.shadowColor = "rgba(0,0,0,0.8)";
-                            ctx.shadowBlur = pxFontSize * 0.15;
-                            ctx.shadowOffsetX = 3;
-                            ctx.shadowOffsetY = 3;
-
-                            // Handle multiline
-                            const lines = text.split('\n');
-                            // Calculate total height to offset properly (since DOM translate is -50% -50%)
-                            const lineHeight = pxFontSize * 1.2;
-                            const totalHeight = lines.length * lineHeight;
-                            let startYPos = pxTop - (totalHeight / 2) + (lineHeight / 2);
-
-                            lines.forEach((line) => {
-                                ctx.fillText(line, pxLeft, startYPos);
-                                startYPos += lineHeight;
-                            });
-                        });
-
-                        // Export
-                        const dataUrl = canvas.toDataURL('image/png');
-                        const link = document.createElement('a');
-                        link.download = `session_card_${Date.now()}.png`;
-                        link.href = dataUrl;
-                        link.click();
-                        
-                    } catch (err) {
-                        console.error(err);
-                        alert("이미지 저장 중 오류가 발생했습니다. 브라우저 설정을 확인해주세요.");
-                    } finally {
-                        btnDownload.innerHTML = originalBtnContent;
-                        btnDownload.classList.remove('opacity-50', 'cursor-not-allowed');
-                    }
-                }, 100); // Small delay to render UI change
-            });
-        });
-    </script>
+        // 만약 올린 파일이 GIF 움짤이라면?
+        if (file.type === 'image/gif') {
+          gifler(dataURL).frames('canvas', function(ctx, frame) {
+            // 움짤 프레임을 계속해서 캔버스에 새로고침(업데이트) 해줍니다.
+            if (!canvas.gifImage) {
+              // 처음 한 번만 Fabric 이미지로 등록
+              fabric.Image.fromURL(dataURL, function(img) {
+                img.set({ left: 100, top: 100 });
+                // 사용자가 맘대로 늘리고 돌리게 설정
+                canvas.add(img);
+                canvas.gifImage = img; 
+              });
+            } else {
+              // 다음 프레임 그리기
+              canvas.gifImage.setElement(frame.buffer);
+              canvas.renderAll();
+            }
+          });
+        } 
+        // 그냥 멈춰있는 일반 사진(PNG, JPG)이라면?
+        else {
+          fabric.Image.fromURL(dataURL, function(img) {
+            // 크기가 너무 크면 캔버스에 맞게 줄여주기
+            img.scaleToWidth(400); 
+            img.set({ left: 50, top: 50 });
+            canvas.add(img); // 캔버스에 쏙!
+            canvas.setActiveObject(img); // 올리자마자 바로 조작 가능하게 콕 찝어줌
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
 </body>
 </html>
