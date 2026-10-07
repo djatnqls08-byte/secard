@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TRPG 세션 카드 메이커</title>
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons (CDN) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Google Fonts: Inter & Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #f1f5f9; /* 배경색 */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 모바일 디바이스 뷰포트 고정 */
+        #app-container {
+            width: 100%;
+            max-width: 430px; /* 아이폰 Pro Max 너비 정도 */
+            background-color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 스크롤바 숨기기 (가로 스크롤 카드용) */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 텍스트 줄바꿈 방지 */
+        .keep-all {
+            word-break: keep-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- ==================== HOME SCREEN ==================== -->
+        <div id="view-home" class="flex flex-col h-full w-full absolute inset-0 overflow-y-auto no-scrollbar pb-24 transition-opacity duration-300">
+            
+            <!-- Header -->
+            <header class="sticky top-0 z-20 flex justify-between items-center p-4 bg-white/90 backdrop-blur-md border-b border-gray-100">
+                <button class="text-gray-800 text-2xl hover:bg-gray-100 p-2 rounded-full transition"><i class="ph ph-list"></i></button>
+                <div class="flex gap-2 text-2xl">
+                    <button class="text-pink-500 hover:bg-gray-100 p-2 rounded-full transition"><i class="ph ph-file-text"></i></button>
+                    <button class="text-gray-800 hover:bg-gray-100 p-2 rounded-full transition"><i class="ph ph-question"></i></button>
+                    <button class="text-gray-800 hover:bg-gray-100 p-2 rounded-full transition"><i class="ph ph-moon"></i></button>
+                </div>
+            </header>
+
+            <!-- Section 1: 주전 사건 -->
+            <section class="mt-6">
+                <div class="flex justify-between items-center px-5 mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-pink-100 text-pink-600 rounded-full flex justify-center items-center text-xl font-bold">😆</div>
+                        <h2 class="text-xl font-black text-gray-900 tracking-tight">주전 사건</h2>
+                    </div>
+                    <span class="text-sm text-gray-400 font-medium">전체 보기 ></span>
+                </div>
+                
+                <!-- Horizontal Scroll Snap Container -->
+                <div class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-4 px-5 pb-2">
+                    
+                    <!-- Card 1 -->
+                    <div class="snap-center shrink-0 w-[80%] bg-white rounded-2xl overflow-hidden border border-gray-200 cursor-pointer card-template" data-title="수몰된 밀실" data-color="from-slate-900 to-cyan-900">
+                        <div class="aspect-[4/3] bg-gradient-to-br from-slate-900 to-cyan-900 relative p-4 flex flex-col justify-between">
+                            <span class="bg-black/50 text-cyan-200 text-xs font-bold px-2 py-1 rounded w-fit border border-cyan-500/30">추리</span>
+                            <h3 class="text-white text-3xl font-black tracking-tighter drop-shadow-md keep-all w-[80%] leading-tight">수몰된 밀실</h3>
+                        </div>
+                        <div class="p-3">
+                            <p class="font-bold text-gray-800 text-base">수몰된 밀실</p>
+                            <p class="text-gray-500 text-xs mb-2">공식 에디터</p>
+                            <div class="flex gap-3 text-gray-400 text-xs font-medium">
+                                <span><i class="ph ph-heart"></i> 1,024</span>
+                                <span><i class="ph ph-play"></i> 42</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="snap-center shrink-0 w-[80%] bg-white rounded-2xl overflow-hidden border border-gray-200 cursor-pointer card-template" data-title="어느 세이렌의 결백" data-color="from-fuchsia-900 to-purple-900">
+                        <div class="aspect-[4/3] bg-gradient-to-br from-fuchsia-900 to-purple-900 relative p-4 flex flex-col justify-between">
+                            <span class="bg-black/50 text-pink-200 text-xs font-bold px-2 py-1 rounded w-fit border border-pink-500/30">연애</span>
+                            <h3 class="text-white text-3xl font-black tracking-tighter drop-shadow-md keep-all w-[80%] leading-tight">어느 세이렌의 결백</h3>
+                        </div>
+                        <div class="p-3">
+                            <p class="font-bold text-gray-800 text-base">어느 세이렌의 결백</p>
+                            <p class="text-gray-500 text-xs mb-2">공식 에디터</p>
+                            <div class="flex gap-3 text-gray-400 text-xs font-medium">
+                                <span><i class="ph ph-heart"></i> 856</span>
+                                <span><i class="ph ph-play"></i> 14</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="snap-center shrink-0 w-4"></div> <!-- 여백 -->
+                </div>
+            </section>
+
+            <!-- Section 2: 공식 시나리오 -->
+            <section class="mt-8">
+                <div class="flex justify-between items-center px-5 mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-pink-100 text-pink-600 rounded-full flex justify-center items-center text-xl font-bold">🎯</div>
+                        <h2 class="text-xl font-black text-gray-900 tracking-tight">공식 시나리오</h2>
+                    </div>
+                    <span class="text-sm text-gray-400 font-medium">전체 보기 ></span>
+                </div>
+                
+                <div class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-4 px-5 pb-2">
+                    <div class="snap-center shrink-0 w-[80%] bg-white rounded-2xl overflow-hidden border border-gray-200 cursor-pointer card-template" data-title="재로 덮인 요람" data-color="from-stone-800 to-stone-900">
+                        <div class="aspect-[4/3] bg-gradient-to-br from-stone-800 to-stone-900 relative p-4 flex flex-col justify-between">
+                            <span class="bg-black/50 text-stone-200 text-xs font-bold px-2 py-1 rounded w-fit border border-stone-500/30">미스터리</span>
+                            <h3 class="text-white text-3xl font-black tracking-tighter drop-shadow-md keep-all w-[80%] leading-tight">재로 덮인 요람</h3>
+                        </div>
+                        <div class="p-3">
+                            <p class="font-bold text-gray-800 text-base">재로 덮인 요람</p>
+                            <p class="text-gray-500 text-xs mb-2">공식 에디터</p>
+                            <div class="flex gap-3 text-gray-400 text-xs font-medium">
+                                <span><i class="ph ph-heart"></i> 512</span>
+                                <span><i class="ph ph-play"></i> 99</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="snap-center shrink-0 w-4"></div>
+                </div>
+            </section>
+
+            <!-- Bottom Navigation -->
+            <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[398px] bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-100 flex justify-around items-center p-2 z-50">
+                <button class="flex flex-col items-center justify-center w-16 h-14 rounded-full bg-pink-50 text-pink-600 transition">
+                    <i class="ph-bold ph-magnifying-glass text-xl"></i>
+                    <span class="text-[10px] font-bold mt-1">시나리오</span>
+                </button>
+                <button class="flex flex-col items-center justify-center w-16 h-14 rounded-full text-gray-400 hover:text-gray-800 transition">
+                    <i class="ph ph-books text-xl"></i>
+                    <span class="text-[10px] font-medium mt-1">서재</span>
+                </button>
+                <button class="flex flex-col items-center justify-center w-16 h-14 rounded-full text-gray-400 hover:text-gray-800 transition">
+                    <i class="ph ph-pen-nib text-xl"></i>
+                    <span class="text-[10px] font-medium mt-1">로비</span>
+                </button>
+                <button class="flex flex-col items-center justify-center w-16 h-14 rounded-full text-gray-400 hover:text-gray-800 transition">
+                    <i class="ph ph-user text-xl"></i>
+                    <span class="text-[10px] font-medium mt-1">내정보</span>
+                </button>
+            </nav>
+        </div>
+
+
+        <!-- ==================== EDITOR SCREEN ==================== -->
+        <div id="view-editor" class="hidden flex flex-col h-full w-full absolute inset-0 bg-gray-50 overflow-y-auto no-scrollbar z-30 transition-opacity duration-300 opacity-0">
+            
+            <!-- Editor Header -->
+            <header class="sticky top-0 z-40 flex items-center gap-3 p-4 bg-white border-b border-gray-200 shadow-sm">
+                <button id="btn-back" class="text-gray-800 text-2xl hover:bg-gray-100 p-1.5 -ml-1.5 rounded-full transition">
+                    <i class="ph ph-arrow-left"></i>
+                </button>
+                <h1 class="font-bold text-lg text-gray-900 flex-1 truncate">세션 카드 만들기</h1>
+            </header>
+
+            <main class="p-4 flex flex-col gap-6 pb-12">
+                
+                <!-- Live Preview DOM Container -->
+                <section>
+                    <div class="flex justify-between items-end mb-2 px-1">
+                        <h3 class="text-sm font-bold text-gray-700">실시간 미리보기</h3>
+                        <span class="text-[10px] text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">16:9 </span>
+                    </div>
+                    
+                    <!-- 시각적 미리보기 (실제 다운로드는 안보이는 Canvas에서 처리됨) -->
+                    <div id="card-preview-container" class="relative w-full aspect-video bg-slate-800 rounded-xl overflow-hidden shadow-lg border border-gray-300 select-none">
+                        <!-- 배경 이미지 (사용자 업로드) -->
+                        <img id="preview-bg" src="" class="absolute inset-0 w-full h-full object-cover hidden" alt="bg">
+                        <!-- 템플릿 기본 배경 (이미지 없을 시) -->
+                        <div id="preview-gradient" class="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 opacity-80"></div>
+                        
+                        <!-- 텍스트 가독성을 위한 오버레이 -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10"></div>
+                        <div class="absolute inset-4 border border-white/20 rounded-sm pointer-events-none"></div>
+
+                        <!-- 텍스트 요소들 -->
+                        <div class="absolute inset-0 p-6 flex flex-col justify-end pointer-events-none">
+                            <p id="preview-date" class="text-xs font-medium text-pink-300 mb-1 tracking-wider drop-shadow-md">2024. 10. 25</p>
+                            <h2 id="preview-title" class="text-3xl font-black text-white mb-1 leading-tight tracking-tighter drop-shadow-lg keep-all">제목 없음</h2>
+                            <p id="preview-subtitle" class="text-sm font-light text-gray-200 mb-3 drop-shadow-md opacity-90 keep-all line-clamp-2">부제나 명대사를 입력하세요.</p>
+                            <div class="w-8 h-0.5 bg-pink-500 mb-3 shadow-[0_0_8px_rgba(236,72,153,0.8)]"></div>
+                            <p id="preview-players" class="text-xs font-semibold text-gray-300 drop-shadow-md">KPC 홍길동 / PC 김철수</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Inputs Form -->
+                <section class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col gap-5">
+                    
+                    <!-- 이미지 업로드 -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">배경 사진 업로드</label>
+                        <div class="relative group cursor-pointer">
+                            <div class="w-full h-24 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 flex flex-col items-center justify-center gap-2 text-gray-500 transition-colors hover:border-pink-400 hover:text-pink-500 hover:bg-pink-50">
+                                <i class="ph ph-image text-3xl"></i>
+                                <span class="text-xs font-medium">터치하여 갤러리에서 사진 선택</span>
+                            </div>
+                            <input type="file" id="input-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        </div>
+                    </div>
+
+                    <!-- 텍스트 입력 -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1.5">시나리오 제목</label>
+                            <input type="text" id="input-title" placeholder="수몰된 밀실" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 font-bold transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1.5">부제 / 명대사</label>
+                            <textarea id="input-subtitle" rows="2" placeholder="우리의 마지막 진실이 가라앉기 전에." class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 text-sm transition resize-none"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1.5">플레이 날짜</label>
+                                <input type="text" id="input-date" placeholder="2024. 10. 25" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-pink-500 transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1.5">참여자</label>
+                                <input type="text" id="input-players" placeholder="KPC 00 / PC 00" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-pink-500 transition text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Download Button -->
+                <button id="btn-download" class="w-full py-4 mt-2 rounded-xl font-bold text-lg flex items-center justify-center gap-2 bg-gray-900 text-white active:scale-[0.98] transition-transform shadow-xl shadow-gray-900/20">
+                    <i class="ph ph-download-simple text-xl"></i>
+                    세션 카드 이미지 저장
+                </button>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- View Elements ---
+            const viewHome = document.getElementById('view-home');
+            const viewEditor = document.getElementById('view-editor');
+            const btnBack = document.getElementById('btn-back');
+            const templates = document.querySelectorAll('.card-template');
+
+            // --- Editor Input Elements ---
+            const inputTitle = document.getElementById('input-title');
+            const inputSubtitle = document.getElementById('input-subtitle');
+            const inputDate = document.getElementById('input-date');
+            const inputPlayers = document.getElementById('input-players');
+            const inputImage = document.getElementById('input-image');
+
+            // --- Preview DOM Elements ---
+            const previewTitle = document.getElementById('preview-title');
+            const previewSubtitle = document.getElementById('preview-subtitle');
+            const previewDate = document.getElementById('preview-date');
+            const previewPlayers = document.getElementById('preview-players');
+            const previewBg = document.getElementById('preview-bg');
+            const previewGradient = document.getElementById('preview-gradient');
+            
+            const btnDownload = document.getElementById('btn-download');
+
+            // Default State
+            let currentBgImageSrc = null;
+            let currentGradientClass = 'from-slate-700 to-slate-900';
+
+            // --- Navigation Logic ---
+            templates.forEach(card => {
+                card.addEventListener('click', () => {
+                    const defaultTitle = card.getAttribute('data-title');
+                    const defaultColor = card.getAttribute('data-color');
+                    
+                    // Set default data to inputs
+                    inputTitle.value = defaultTitle;
+                    inputSubtitle.value = "이곳에 명대사나 설명을 작성하세요.";
+                    
+                    const today = new Date();
+                    inputDate.value = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`;
+                    inputPlayers.value = "KPC 마스터 / PC 플레이어";
+
+                    // Update DOM Preview immediately
+                    previewTitle.innerText = inputTitle.value;
+                    previewSubtitle.innerText = inputSubtitle.value;
+                    previewDate.innerText = inputDate.value;
+                    previewPlayers.innerText = inputPlayers.value;
+                    
+                    // Reset Image
+                    inputImage.value = '';
+                    previewBg.src = '';
+                    previewBg.classList.add('hidden');
+                    currentBgImageSrc = null;
+
+                    // Set Gradient
+                    previewGradient.className = `absolute inset-0 w-full h-full opacity-80 bg-gradient-to-br ${defaultColor}`;
+                    currentGradientClass = defaultColor;
+
+                    // Screen Transition
+                    viewEditor.classList.remove('hidden');
+                    // slight delay to allow display block to apply before opacity transition
+                    setTimeout(() => {
+                        viewEditor.classList.remove('opacity-0');
+                        viewHome.classList.add('opacity-0');
+                        setTimeout(() => viewHome.classList.add('hidden'), 300);
+                    }, 10);
+                });
+            });
+
+            btnBack.addEventListener('click', () => {
+                viewHome.classList.remove('hidden');
+                setTimeout(() => {
+                    viewHome.classList.remove('opacity-0');
+                    viewEditor.classList.add('opacity-0');
+                    setTimeout(() => viewEditor.classList.add('hidden'), 300);
+                }, 10);
+            });
+
+            // --- Live Data Binding ---
+            inputTitle.addEventListener('input', (e) => previewTitle.innerText = e.target.value || '제목 없음');
+            inputSubtitle.addEventListener('input', (e) => previewSubtitle.innerText = e.target.value);
+            inputDate.addEventListener('input', (e) => previewDate.innerText = e.target.value);
+            inputPlayers.addEventListener('input', (e) => previewPlayers.innerText = e.target.value);
+
+            // --- Image Upload Logic ---
+            inputImage.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentBgImageSrc = event.target.result;
+                        previewBg.src = currentBgImageSrc;
+                        previewBg.classList.remove('hidden');
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // --- Canvas Export Logic ---
+            // Helper function to extract Tailwind gradient colors for canvas fallback
+            function getCanvasGradientColors(twClass) {
+                // Simplified mapping for the mock templates
+                if(twClass.includes('cyan')) return ['#0f172a', '#164e63'];
+                if(twClass.includes('fuchsia')) return ['#4a044e', '#581c87'];
+                if(twClass.includes('stone')) return ['#292524', '#1c1917'];
+                return ['#334155', '#0f172a']; // default slate
+            }
+
+            btnDownload.addEventListener('click', () => {
+                // Change button state
+                const originalText = btnDownload.innerHTML;
+                btnDownload.innerHTML = `<i class="ph ph-spinner animate-spin text-xl"></i> 이미지 생성 중...`;
+                btnDownload.disabled = true;
+                btnDownload.classList.add('bg-gray-400');
+                btnDownload.classList.remove('bg-gray-900');
+
+                // Canvas setup (Standard Twitter/SNS resolution 16:9)
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 1200;
+                canvas.height = 675;
+
+                // 1. Draw Background
+                const drawBackgroundAndText = () => {
+                    // Draw dimming overlay (top to bottom gradient)
+                    const bgOverlay = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    bgOverlay.addColorStop(0, 'rgba(0,0,0,0.1)');
+                    bgOverlay.addColorStop(0.5, 'rgba(0,0,0,0.3)');
+                    bgOverlay.addColorStop(1, 'rgba(0,0,0,0.9)');
+                    ctx.fillStyle = bgOverlay;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw inner border
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+
+                    // Draw Date
+                    ctx.fillStyle = '#f9a8d4'; // pink-300
+                    ctx.font = '500 24px Inter, "Noto Sans KR", sans-serif';
+                    ctx.fillText(inputDate.value, 60, canvas.height - 240);
+
+                    // Draw Title
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '900 85px Inter, "Noto Sans KR", sans-serif';
+                    ctx.fillText(inputTitle.value || '제목 없음', 55, canvas.height - 140);
+
+                    // Draw Subtitle (handle multiline manually if needed, but keeping it single/truncated for canvas simplicity)
+                    ctx.fillStyle = '#e2e8f0'; // slate-200
+                    ctx.font = '300 28px Inter, "Noto Sans KR", sans-serif';
+                    ctx.fillText(inputSubtitle.value, 60, canvas.height - 95);
+
+                    // Draw Pink Line
+                    ctx.fillStyle = '#ec4899'; // pink-500
+                    ctx.fillRect(60, canvas.height - 65, 70, 4);
+
+                    // Draw Players
+                    ctx.fillStyle = '#cbd5e1'; // slate-300
+                    ctx.font = '600 22px Inter, "Noto Sans KR", sans-serif';
+                    ctx.fillText(inputPlayers.value, 60, canvas.height - 30);
+
+                    // Trigger Download
+                    const link = document.createElement('a');
+                    link.download = `${inputTitle.value || 'session_card'}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    // Restore button
+                    setTimeout(() => {
+                        btnDownload.innerHTML = originalText;
+                        btnDownload.disabled = false;
+                        btnDownload.classList.remove('bg-gray-400');
+                        btnDownload.classList.add('bg-gray-900');
+                    }, 1000);
+                };
+
+                if (currentBgImageSrc) {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Calculate Cover Mode values
+                        const imgRatio = img.width / img.height;
+                        const canvasRatio = canvas.width / canvas.height;
+                        let drawWidth, drawHeight, offsetX, offsetY;
+
+                        if (imgRatio > canvasRatio) {
+                            drawHeight = canvas.height;
+                            drawWidth = img.width * (drawHeight / img.height);
+                            offsetX = (canvas.width - drawWidth) / 2;
+                            offsetY = 0;
+                        } else {
+                            drawWidth = canvas.width;
+                            drawHeight = img.height * (drawWidth / img.width);
+                            offsetX = 0;
+                            offsetY = (canvas.height - drawHeight) / 2;
+                        }
+
+                        // Draw Image
+                        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+                        drawBackgroundAndText();
+                    };
+                    img.src = currentBgImageSrc;
+                } else {
+                    // Draw Gradient Fallback
+                    const colors = getCanvasGradientColors(currentGradientClass);
+                    const grd = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                    grd.addColorStop(0, colors[0]);
+                    grd.addColorStop(1, colors[1]);
+                    ctx.fillStyle = grd;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    drawBackgroundAndText();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
