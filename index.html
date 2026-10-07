@@ -3,271 +3,497 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DOPA 템플릿 메이커 (배경+자동완성)</title>
+  <title>DOPA 만능 페어틀 엔진 (Tag-Driven Core)</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.js"></script>
 
-  <!-- 테마용 폰트 -->
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;700;900&family=Share+Tech+Mono&family=Nanum+Myeongjo:wght@700;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <!-- 폰트: 고딕, 명조, 사이버, 감성체 -->
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;700;900&family=Share+Tech+Mono&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
 
   <style>
-    body { font-family: 'Noto Sans KR', sans-serif; background-color: #09090b; color: #fff; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #050505; color: #fff; touch-action: manipulation; }
     ::-webkit-scrollbar { display: none; }
-    .canvas-wrapper { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 12px; border: 1px solid #27272a; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    canvas { display: block; }
     
-    .theme-btn { padding: 12px; border-radius: 12px; border: 1px solid #27272a; background: #18181b; color: #a1a1aa; font-weight: bold; font-size: 12px; text-align: center; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-    .theme-btn.active { border-color: #f43f5e; background: #f43f5e20; color: #f43f5e; }
+    .canvas-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 1px solid #27272a; }
+    #previewCanvas { width: 100%; height: 100%; cursor: grab; }
+    #previewCanvas:active { cursor: grabbing; }
 
-    .input-group label { display: block; font-size: 11px; color: #a1a1aa; font-weight: bold; margin-bottom: 4px; }
-    .input-box { width: 100%; background: #18181b; border: 1px solid #3f3f46; color: #fff; padding: 12px; border-radius: 8px; font-size: 13px; outline: none; transition: 0.2s; }
-    .input-box:focus { border-color: #f43f5e; }
+    /* 태그 토글 버튼 스타일 */
+    .tag-btn { padding: 8px 14px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+    .tag-btn.active { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+    
+    /* 장르별 활성화 컬러 */
+    .tag-btn.active[data-tag="cyber"] { background: #ff0055; color: #fff; border-color: #ff0055; box-shadow: 0 0 15px rgba(255,0,85,0.4); }
+    .tag-btn.active[data-tag="digicam"] { background: #10b981; color: #fff; border-color: #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.4); }
+    .tag-btn.active[data-tag="wuxia"] { background: #d4af37; color: #000; border-color: #d4af37; box-shadow: 0 0 15px rgba(212,175,55,0.4); }
+
+    .input-box { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 13px; outline: none; margin-top: 4px; }
+    .input-box:focus { border-color: #fff; }
   </style>
 </head>
-<body class="pb-10">
+<body class="pb-20">
 
-  <!-- 상단 헤더 -->
-  <header class="p-4 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-[#09090b]/90 backdrop-blur z-50">
-    <div class="font-black tracking-widest text-lg text-rose-500">DOPA</div>
-    <div class="text-[10px] text-zinc-500 font-mono border border-zinc-700 px-2 py-1 rounded">TEMPLATE MAKER</div>
+  <header class="p-4 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-[#050505]/90 backdrop-blur z-50">
+    <div class="font-black tracking-widest text-lg text-white">DOPA <span class="text-[10px] text-zinc-500 font-mono font-normal">CORE ENGINE</span></div>
   </header>
 
-  <main class="max-w-md mx-auto p-4 space-y-6">
+  <main class="max-w-xl mx-auto p-4 space-y-6">
     
-    <!-- 1. 미리보기 캔버스 (뷰파인더) -->
+    <!-- 1. 캔버스 영역 -->
     <div>
       <div class="flex justify-between items-end mb-2">
         <span class="text-sm font-bold text-zinc-300">PREVIEW</span>
-        <span class="text-[10px] text-emerald-400 font-mono">드래그하여 배경 위치 조절</span>
+        <span class="text-[10px] text-zinc-500 font-mono" id="statusMsg">위젯을 드래그해서 배치하세요</span>
       </div>
-      <div class="canvas-wrapper" id="canvasWrapper">
-        <canvas id="mainCanvas"></canvas>
+      <div class="canvas-wrapper">
+        <canvas id="previewCanvas" width="960" height="540"></canvas>
       </div>
     </div>
 
-    <!-- 2. 테마 선택 -->
+    <!-- 2. 태그 조립 (이 부분이 핵심!) -->
     <div>
-      <span class="text-sm font-bold text-zinc-300 block mb-3">1. STYLE (장르 선택)</span>
-      <div class="grid grid-cols-3 gap-2">
-        <button class="theme-btn active" data-theme="secret">🕵️ 기밀문서</button>
-        <button class="theme-btn" data-theme="digicam">📷 디카/HUD</button>
-        <button class="theme-btn" data-theme="romance">💗 로맨스</button>
-        <button class="theme-btn" data-theme="royal">🏰 로판</button>
-        <button class="theme-btn" data-theme="insta">📱 인스타그램</button>
+      <span class="text-sm font-bold text-zinc-300 block mb-3">1. 서사 및 장르 태그 (중복 선택 가능)</span>
+      <div class="flex flex-wrap gap-2" id="tagContainer">
+        <button class="tag-btn active" data-tag="cyber">#사이버펑크</button>
+        <button class="tag-btn" data-tag="digicam">#디카/HUD</button>
+        <button class="tag-btn" data-tag="wuxia">#무협/동양풍</button>
+        <button class="tag-btn" data-tag="romance">#로맨스</button>
+        <button class="tag-btn" data-tag="hate">#혐관</button>
       </div>
+      <p class="text-[10px] text-zinc-500 mt-2">💡 선택한 태그에 따라 화면에 알맞은 위젯(오브젝트)이 즉시 추가됩니다.</p>
     </div>
 
-    <!-- 3. 정보 및 배경 입력 -->
+    <!-- 3. 정보 및 미디어 입력 -->
     <div class="space-y-4 bg-zinc-900 p-4 rounded-xl border border-zinc-800">
-      <span class="text-sm font-bold text-zinc-300 block mb-2">2. INFORMATION (정보 입력)</span>
+      <span class="text-sm font-bold text-zinc-300 block mb-2">2. 페어 정보 및 배경</span>
       
-      <label class="bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold p-3 rounded-lg text-center block cursor-pointer transition mb-4">
-        📸 배경 일러스트 업로드
-        <input type="file" id="imageUpload" accept="image/*" class="hidden">
-      </label>
-
-      <div class="input-group">
-        <label>시나리오 제목 (Title)</label>
-        <input type="text" id="valTitle" class="input-box" value="애정은 병열" placeholder="시나리오 제목">
-      </div>
-      
-      <div class="grid grid-cols-2 gap-3">
-        <div class="input-group">
-          <label>캐릭터 A</label>
-          <input type="text" id="valNameA" class="input-box" value="윤세라" placeholder="이름 1">
-        </div>
-        <div class="input-group">
-          <label>캐릭터 B</label>
-          <input type="text" id="valNameB" class="input-box" value="백우진" placeholder="이름 2">
-        </div>
+      <div class="grid grid-cols-2 gap-2">
+        <label class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold p-3 rounded-lg text-center cursor-pointer transition">
+          🖼️ 배경 이미지/GIF
+          <input type="file" id="bgInput" accept="image/*, image/gif" class="hidden">
+        </label>
+        <button id="btnReset" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold p-3 rounded-lg transition">
+          🔄 위젯 위치 초기화
+        </button>
       </div>
 
-      <div class="input-group">
-        <label>한줄 대사 / 캐치프레이즈</label>
-        <input type="text" id="valQuote" class="input-box" value="우리가 다시 만날 수 있을까?" placeholder="명대사 입력">
+      <div class="grid grid-cols-2 gap-3 mt-2">
+        <div>
+          <label class="text-[11px] text-zinc-400 font-bold">캐릭터 A (L)</label>
+          <input type="text" id="valNameA" class="input-box" value="윤세라">
+        </div>
+        <div>
+          <label class="text-[11px] text-zinc-400 font-bold">캐릭터 B (R)</label>
+          <input type="text" id="valNameB" class="input-box" value="백우진">
+        </div>
+      </div>
+      <div>
+        <label class="text-[11px] text-zinc-400 font-bold">대사 / 캐치프레이즈</label>
+        <input type="text" id="valQuote" class="input-box" value="잡을 수 있다면 잡아봐.">
       </div>
     </div>
 
-    <!-- 4. 내보내기 -->
-    <button id="btnDownload" class="bg-white hover:bg-zinc-200 text-black font-bold py-4 rounded-xl text-sm transition active:scale-95 w-full">
-      💾 완성본 저장 (1280x720)
-    </button>
+    <!-- 4. 고화질 추출 (기존 코드 완벽 보존) -->
+    <div class="grid grid-cols-2 gap-3 pt-2">
+      <button id="btnExportMP4" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-white font-bold py-4 rounded-xl text-xs transition active:scale-95">
+        ✨ 고화질 MP4 저장
+      </button>
+      <button id="btnExportGIF" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-4 rounded-xl text-xs transition active:scale-95 border border-zinc-700">
+        🎬 움짤 GIF 저장
+      </button>
+    </div>
+    
+    <div id="loadingBar" class="hidden mt-4 w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+      <div id="progressFill" class="h-full bg-emerald-500 w-0 transition-all"></div>
+    </div>
+    <div id="resultArea" class="mt-4 hidden text-center">
+      <p class="text-xs text-emerald-400 font-bold mb-2">저장 완료!</p>
+    </div>
 
   </main>
 
   <script>
     // ==========================================
-    // 앱 상태 (State)
+    // 1. 코어 상태 (State) 및 캔버스 세팅
     // ==========================================
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    
     const state = {
-      theme: 'secret',
-      title: '애정은 병열',
+      tags: new Set(['cyber']), // 현재 활성화된 태그들 (다중 선택 가능)
       nameA: '윤세라',
       nameB: '백우진',
-      quote: '우리가 다시 만날 수 있을까?',
-      bgImageObj: null // 업로드된 배경 이미지
+      quote: '잡을 수 있다면 잡아봐.',
+      bgMedia: null
     };
 
-    // ==========================================
-    // 캔버스 초기화
-    // ==========================================
-    const BASE_W = 1280;
-    const BASE_H = 720;
-    const canvas = new fabric.Canvas('mainCanvas', { width: BASE_W, height: BASE_H, selection: false });
+    let animProgress = 0;
+    let previewTimer = null;
+    let isExporting = false;
 
-    function resizeCanvas() {
-      const wrapper = document.getElementById('canvasWrapper');
-      canvas.setZoom(wrapper.clientWidth / BASE_W);
-      canvas.setWidth(wrapper.clientWidth);
-      canvas.setHeight(wrapper.clientWidth * (9/16));
+    // ==========================================
+    // 2. 위젯 위치 데이터 (초기값)
+    // 장르별로 등장하는 UI 위젯들의 좌표와 크기
+    // ==========================================
+    const defaultWidgets = {
+      // 사이버펑크용 위젯
+      console: { id: 'console', x: 280, y: 310, w: 400, h: 180 },
+      barcode: { id: 'barcode', x: 40, y: 450, w: 180, h: 70 },
+      // 디카용 위젯
+      afBox:   { id: 'afBox', x: 430, y: 190, w: 100, h: 100 },
+      dateBox: { id: 'dateBox', x: 40, y: 480, w: 250, h: 40 },
+      // 무협/동양풍용 위젯
+      wuxiaFrame: { id: 'wuxiaFrame', x: 40, y: 40, w: 880, h: 460 },
+      wuxiaText:  { id: 'wuxiaText', x: 800, y: 80, w: 60, h: 350 },
+      // 공통 텍스트 박스
+      quoteBox: { id: 'quoteBox', x: 50, y: 50, w: 300, h: 60 }
+    };
+    
+    let widgets = JSON.parse(JSON.stringify(defaultWidgets));
+    let renderOrder = Object.keys(widgets); // 드래그 레이어 처리용
+
+    // ==========================================
+    // 3. 기획자님의 드래그 & 스냅 엔진 (유지)
+    // ==========================================
+    let draggingItem = null;
+    let dragOffset = { x: 0, y: 0 };
+    const SNAP_THRESHOLD = 15;
+
+    function getCanvasCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) };
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
 
-    // ==========================================
-    // 자동 생성 렌더링 엔진 (핵심)
-    // ==========================================
-    function renderTemplate() {
-      canvas.clear();
-      canvas.backgroundColor = '#111';
-
-      // 1. 배경 이미지 렌더링 (가장 먼저 깔림, 선택/이동 가능)
-      if (state.bgImageObj) {
-        canvas.add(state.bgImageObj);
-      }
-
-      // 2. 테마별 오버레이(프레임+텍스트) 렌더링
-      const cx = BASE_W / 2;
-      const cy = BASE_H / 2;
-      const commonTextOpts = { selectable: false, evented: false }; // 사용자가 건드리지 못하게 고정!
-
-      switch (state.theme) {
-        // 🕵️ 기밀문서 (캡처 이미지 기반)
-        case 'secret':
-          // 빨간 점선 테두리
-          canvas.add(new fabric.Rect({ left: 40, top: 40, width: 1200, height: 640, fill: 'transparent', stroke: '#e11d48', strokeWidth: 6, strokeDashArray: [15, 15], selectable: false, evented: false }));
-          canvas.add(new fabric.Text('TOP SECRET // CONFIDENTIAL', { left: 80, top: 80, fontFamily: 'Share Tech Mono', fontSize: 35, fontWeight: 'bold', fill: '#e11d48', ...commonTextOpts }));
-          
-          canvas.add(new fabric.Text(state.title, { left: 80, top: 160, fontFamily: 'Noto Sans KR', fontSize: 80, fontWeight: '900', fill: '#fff', shadow: new fabric.Shadow({ color: '#000', blur: 10 }), ...commonTextOpts }));
-          canvas.add(new fabric.Text(`SUBJECT: ${state.nameA} x ${state.nameB}`, { left: 85, top: 270, fontFamily: 'Share Tech Mono', fontSize: 24, fill: '#fca5a5', backgroundColor: 'rgba(0,0,0,0.5)', ...commonTextOpts }));
-          canvas.add(new fabric.Text(`"${state.quote}"`, { left: 85, top: 600, fontFamily: 'Gowun Batang', fontSize: 28, fill: '#fff', shadow: new fabric.Shadow({ color: '#000', blur: 4 }), ...commonTextOpts }));
-          break;
-
-        // 📷 디카/HUD (기존 코드 기반)
-        case 'digicam':
-          // 디카 가이드라인
-          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1100, height: 600, fill: 'transparent', stroke: 'rgba(255,255,255,0.5)', strokeWidth: 2, ...commonTextOpts }));
-          canvas.add(new fabric.Text('● REC', { left: 100, top: 80, fontFamily: 'Share Tech Mono', fontSize: 30, fill: '#f43f5e', ...commonTextOpts }));
-          canvas.add(new fabric.Text('100% 🔋', { left: BASE_W - 220, top: 80, fontFamily: 'Share Tech Mono', fontSize: 24, fill: '#fff', ...commonTextOpts }));
-          
-          canvas.add(new fabric.Text(state.title, { left: cx, top: 150, originX: 'center', fontFamily: 'Noto Sans KR', fontSize: 60, fontWeight: '900', fill: '#fff', shadow: new fabric.Shadow({ color: '#000', blur: 10 }), ...commonTextOpts }));
-          canvas.add(new fabric.Text(`${state.nameA} - ${state.nameB}`, { left: cx, top: 230, originX: 'center', fontFamily: 'Noto Sans KR', fontSize: 30, fill: '#a1a1aa', ...commonTextOpts }));
-          
-          canvas.add(new fabric.Text(`[ ${state.quote} ]`, { left: cx, top: 600, originX: 'center', fontFamily: 'Gowun Dodum', fontSize: 28, fill: '#fff', backgroundColor: 'rgba(0,0,0,0.5)', ...commonTextOpts }));
-          break;
-
-        // 💗 로맨스
-        case 'romance':
-          canvas.add(new fabric.Rect({ left: 0, top: 0, width: BASE_W, height: BASE_H, fill: 'rgba(0,0,0,0.3)', ...commonTextOpts })); // 살짝 어둡게
-          canvas.add(new fabric.Text(state.title, { left: cx, top: cy - 100, originX: 'center', originY: 'center', fontFamily: 'Nanum Myeongjo', fontSize: 100, fontWeight: '800', fill: '#fff', ...commonTextOpts }));
-          canvas.add(new fabric.Text(`${state.nameA} x ${state.nameB}`, { left: cx, top: cy + 20, originX: 'center', originY: 'center', fontFamily: 'Gowun Batang', fontSize: 35, fill: '#fda4af', ...commonTextOpts }));
-          canvas.add(new fabric.Text(state.quote, { left: cx, top: BASE_H - 120, originX: 'center', fontFamily: 'Gowun Batang', fontSize: 24, fill: '#fff', ...commonTextOpts }));
-          break;
-
-        // 🏰 로판
-        case 'royal':
-          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1200, height: 640, fill: 'transparent', stroke: '#fbbf24', strokeWidth: 3, ...commonTextOpts }));
-          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1180, height: 620, fill: 'transparent', stroke: '#fbbf24', strokeWidth: 1, ...commonTextOpts }));
-          
-          canvas.add(new fabric.Text(state.title, { left: cx, top: 150, originX: 'center', fontFamily: 'Cinzel', fontSize: 80, fontWeight: 'bold', fill: '#fbbf24', ...commonTextOpts }));
-          canvas.add(new fabric.Text(`${state.nameA} ✦ ${state.nameB}`, { left: cx, top: 250, originX: 'center', fontFamily: 'Nanum Myeongjo', fontSize: 40, fill: '#fff', ...commonTextOpts }));
-          canvas.add(new fabric.Text(`"${state.quote}"`, { left: cx, top: 580, originX: 'center', fontFamily: 'Nanum Myeongjo', fontSize: 30, fontStyle: 'italic', fill: '#d4d4d8', ...commonTextOpts }));
-          break;
-
-        // 📱 인스타그램
-        case 'insta':
-          // 인스타 UI (하얀색 박스)
-          const instaBox = new fabric.Rect({ left: 80, top: cy, originY: 'center', width: 450, height: 600, fill: '#fff', rx: 20, ...commonTextOpts });
-          canvas.add(instaBox);
-          
-          // 상단 프로필 영역
-          canvas.add(new fabric.Circle({ left: 110, top: cy - 260, radius: 20, fill: '#e4e4e7', ...commonTextOpts }));
-          canvas.add(new fabric.Text('dopa_official', { left: 160, top: cy - 250, fontFamily: 'Noto Sans KR', fontSize: 16, fontWeight: 'bold', fill: '#000', ...commonTextOpts }));
-          
-          // 타이포
-          canvas.add(new fabric.Text(state.title, { left: 110, top: cy - 100, fontFamily: 'Noto Sans KR', fontSize: 50, fontWeight: '900', fill: '#000', ...commonTextOpts }));
-          canvas.add(new fabric.Text(`♥ ${state.nameA} & ${state.nameB}`, { left: 110, top: cy, fontFamily: 'Noto Sans KR', fontSize: 20, fontWeight: 'bold', fill: '#e11d48', ...commonTextOpts }));
-          
-          // 대사 (본문 영역)
-          canvas.add(new fabric.Text(state.quote, { left: 110, top: cy + 180, fontFamily: 'Gowun Batang', fontSize: 18, fill: '#333', ...commonTextOpts }));
-          break;
-      }
+    function handleDragStart(e) {
+      if (isExporting) return;
+      const pos = getCanvasCoords(e);
       
-      canvas.renderAll();
+      // 현재 켜져있는 태그에 해당하는 위젯만 드래그 판정
+      const activeWidgets = getActiveWidgets();
+
+      for (let i = renderOrder.length - 1; i >= 0; i--) {
+        const key = renderOrder[i];
+        if (!activeWidgets.includes(key)) continue; // 숨겨진 위젯은 무시
+        
+        const item = widgets[key];
+        if (pos.x >= item.x && pos.x <= item.x + item.w && pos.y >= item.y && pos.y <= item.y + item.h) {
+          draggingItem = key;
+          dragOffset.x = pos.x - item.x;
+          dragOffset.y = pos.y - item.y;
+          // 클릭한 위젯을 렌더링 최상단으로 올림
+          renderOrder.splice(i, 1);
+          renderOrder.push(key);
+          if (e.cancelable) e.preventDefault();
+          return;
+        }
+      }
+    }
+
+    function handleDragMove(e) {
+      if (!draggingItem || isExporting) return;
+      const pos = getCanvasCoords(e);
+      let newX = Math.round(pos.x - dragOffset.x);
+      let newY = Math.round(pos.y - dragOffset.y);
+      const item = widgets[draggingItem];
+
+      // 자석 스냅 효과 (화면 중앙 근처로 가면 찰칵 붙음)
+      const cx = newX + item.w / 2;
+      const cy = newY + item.h / 2;
+      if (Math.abs(cx - canvas.width/2) < SNAP_THRESHOLD) newX = canvas.width/2 - item.w/2;
+      if (Math.abs(cy - canvas.height/2) < SNAP_THRESHOLD) newY = canvas.height/2 - item.h/2;
+
+      item.x = newX;
+      item.y = newY;
+      if (e.cancelable) e.preventDefault();
+    }
+
+    function handleDragEnd() { draggingItem = null; }
+
+    canvas.addEventListener('mousedown', handleDragStart); window.addEventListener('mousemove', handleDragMove); window.addEventListener('mouseup', handleDragEnd);
+    canvas.addEventListener('touchstart', handleDragStart, { passive: false }); window.addEventListener('touchmove', handleDragMove, { passive: false }); window.addEventListener('touchend', handleDragEnd);
+
+    // ==========================================
+    // 4. 태그에 따라 활성화할 위젯을 결정하는 룰 엔진
+    // ==========================================
+    function getActiveWidgets() {
+      let active = ['quoteBox']; // 대사창은 항상 기본
+      if (state.tags.has('cyber')) active.push('console', 'barcode');
+      if (state.tags.has('digicam')) active.push('afBox', 'dateBox');
+      if (state.tags.has('wuxia')) active.push('wuxiaFrame', 'wuxiaText');
+      return active;
     }
 
     // ==========================================
-    // 배경 이미지 업로드 로직
+    // 5. 메인 렌더링 루프 (테마 모듈 조립)
     // ==========================================
-    document.getElementById('imageUpload').onchange = e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = f => {
-        fabric.Image.fromURL(f.target.result, img => {
-          // 화면에 꽉 차게 스케일링
-          const targetScale = Math.max(BASE_W / img.width, BASE_H / img.height);
-          img.set({
-            scaleX: targetScale, scaleY: targetScale,
-            left: BASE_W/2, top: BASE_H/2,
-            originX: 'center', originY: 'center',
-            hasControls: false, // 크기 조절 박스 숨김 (드래그 이동만 가능)
-            hasBorders: false
-          });
-          state.bgImageObj = img;
-          renderTemplate();
-        });
-      };
-      reader.readAsDataURL(file);
-    };
+    function draw(prog = animProgress) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // --- [1단계: 배경 & 미디어] ---
+      ctx.fillStyle = '#050505';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (state.bgMedia) {
+        let src;
+        if (state.bgMedia.isGif) {
+          const frameIdx = Math.floor(prog * state.bgMedia.frames.length * 2) % state.bgMedia.frames.length;
+          src = state.bgMedia.frames[frameIdx];
+        } else {
+          src = state.bgMedia.img;
+        }
+        // 화면에 꽉 차게 그리기 (Cover)
+        const scale = Math.max(canvas.width / src.width, canvas.height / src.height);
+        const w = src.width * scale, h = src.height * scale;
+        ctx.drawImage(src, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
+      } else {
+        // 배경이 없을 때 기본 패턴
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+        for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
+        for(let i=0; i<canvas.height; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
+      }
+
+      // --- [2단계: 어둡기 처리 (테마별 무드)] ---
+      if (state.tags.has('cyber')) { ctx.fillStyle = 'rgba(5,0,10,0.4)'; ctx.fillRect(0,0,canvas.width,canvas.height); }
+      if (state.tags.has('wuxia')) { ctx.fillStyle = 'rgba(20,10,0,0.5)'; ctx.fillRect(0,0,canvas.width,canvas.height); } // 무협은 탁하고 붉은빛
+
+      // --- [3단계: 위젯 렌더링] ---
+      const activeWidgets = getActiveWidgets();
+      
+      // renderOrder 배열 순서대로 그려서 레이어 우선순위를 맞춤
+      renderOrder.forEach(key => {
+        if (!activeWidgets.includes(key)) return;
+        const it = widgets[key];
+        ctx.save();
+
+        switch(key) {
+          // 💻 사이버펑크: 콘솔창
+          case 'console':
+            ctx.fillStyle = 'rgba(0,0,5,0.8)'; ctx.fillRect(it.x, it.y, it.w, it.h);
+            ctx.strokeStyle = '#ff0055'; ctx.strokeRect(it.x, it.y, it.w, it.h);
+            ctx.fillStyle = '#ff0055'; ctx.fillRect(it.x, it.y, it.w, 20);
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 12px "Share Tech Mono"';
+            ctx.fillText('root@dopa:~#', it.x + 5, it.y + 14);
+            ctx.fillStyle = '#00ffcc'; ctx.font = '14px "Noto Sans KR"';
+            ctx.fillText(`> USER_A: ${state.nameA}`, it.x + 10, it.y + 50);
+            ctx.fillText(`> USER_B: ${state.nameB}`, it.x + 10, it.y + 80);
+            
+            // 깜빡이는 커서
+            if (prog % 0.1 > 0.05) ctx.fillRect(it.x + 10, it.y + 110, 10, 15);
+            break;
+            
+          // 💻 사이버펑크: 바코드
+          case 'barcode':
+            ctx.fillStyle = '#fff'; ctx.fillRect(it.x, it.y, it.w, it.h);
+            ctx.fillStyle = '#000';
+            for(let i=0; i<10; i++) ctx.fillRect(it.x + 10 + i*15, it.y + 10, Math.random()*8+2, 30);
+            const scanY = it.y + 10 + (Math.sin(prog * Math.PI * 4) * 0.5 + 0.5) * 30;
+            ctx.fillStyle = '#ff0055'; ctx.fillRect(it.x + 5, scanY, it.w - 10, 2);
+            ctx.fillStyle = '#000'; ctx.font = 'bold 12px "Share Tech Mono"'; ctx.textAlign = 'center';
+            ctx.fillText('DPA-OVERRIDE', it.x + it.w/2, it.y + 60);
+            break;
+
+          // 📷 디카: AF 포커스 (기획자님 원본 로직)
+          case 'afBox':
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+            ctx.globalAlpha = Math.sin(prog * Math.PI * 4) * 0.3 + 0.7;
+            ctx.beginPath(); ctx.moveTo(it.x, it.y+15); ctx.lineTo(it.x, it.y); ctx.lineTo(it.x+15, it.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(it.x+it.w-15, it.y); ctx.lineTo(it.x+it.w, it.y); ctx.lineTo(it.x+it.w, it.y+15); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(it.x, it.y+it.h-15); ctx.lineTo(it.x, it.y+it.h); ctx.lineTo(it.x+15, it.y+it.h); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(it.x+it.w-15, it.y+it.h); ctx.lineTo(it.x+it.w, it.y+it.h); ctx.lineTo(it.x+it.w, it.y+it.h-15); ctx.stroke();
+            const cx = it.x + it.w/2, cy = it.y + it.h/2;
+            ctx.beginPath(); ctx.moveTo(cx-5, cy); ctx.lineTo(cx+5, cy); ctx.moveTo(cx, cy-5); ctx.lineTo(cx, cy+5); ctx.stroke();
+            break;
+            
+          // 📷 디카: 날짜
+          case 'dateBox':
+            ctx.fillStyle = '#10b981'; ctx.font = 'bold 24px "Share Tech Mono"';
+            ctx.fillText('2026.10.08 PM 11:24', it.x, it.y + 20);
+            break;
+
+          // 🐉 무협/동양풍: 전통 창틀 느낌의 프레임
+          case 'wuxiaFrame':
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)'; // 금색
+            ctx.lineWidth = 2;
+            // 겉 테두리
+            ctx.strokeRect(it.x, it.y, it.w, it.h);
+            // 안쪽 테두리
+            ctx.strokeRect(it.x + 10, it.y + 10, it.w - 20, it.h - 20);
+            // 모서리 장식
+            const corner = 30;
+            ctx.fillRect(it.x, it.y, corner, corner);
+            ctx.fillRect(it.x + it.w - corner, it.y, corner, corner);
+            ctx.fillRect(it.x, it.y + it.h - corner, corner, corner);
+            ctx.fillRect(it.x + it.w - corner, it.y + it.h - corner, corner, corner);
+            break;
+
+          // 🐉 무협/동양풍: 세로쓰기 이름
+          case 'wuxiaText':
+            ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(it.x, it.y, it.w, it.h);
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 28px "Gowun Batang"';
+            ctx.textAlign = 'center';
+            // 세로쓰기를 위한 강제 줄바꿈 처리
+            const charsA = state.nameA.split('');
+            const charsB = state.nameB.split('');
+            charsA.forEach((c, i) => ctx.fillText(c, it.x + 20, it.y + 40 + i*35));
+            charsB.forEach((c, i) => ctx.fillText(c, it.x + 40, it.y + 150 + i*35));
+            
+            // 붉은 낙관(도장) 효과
+            ctx.fillStyle = '#8b0000'; ctx.fillRect(it.x + 15, it.y + it.h - 40, 30, 30);
+            ctx.fillStyle = '#fff'; ctx.font = '10px "Nanum Myeongjo"'; ctx.fillText('연', it.x + 30, it.y + it.h - 20);
+            break;
+
+          // 💬 공통 대사창
+          case 'quoteBox':
+            let qColor = '#fff'; let qFont = '24px "Noto Sans KR"'; let qBg = 'rgba(0,0,0,0.5)';
+            if (state.tags.has('cyber')) { qColor = '#00ffcc'; qFont = '20px "Share Tech Mono"'; qBg = 'rgba(0,5,20,0.8)'; }
+            if (state.tags.has('wuxia')) { qColor = '#d4af37'; qFont = '28px "Nanum Myeongjo"'; qBg = 'transparent'; }
+            
+            ctx.fillStyle = qBg;
+            ctx.fillRect(it.x, it.y, it.w, it.h);
+            ctx.fillStyle = qColor; ctx.font = qFont;
+            ctx.textAlign = 'left';
+            ctx.fillText(`"${state.quote}"`, it.x + 10, it.y + 35);
+            break;
+        }
+
+        // 드래그 중인 아이템은 흰색 점선 테두리 표시
+        if (draggingItem === key && !isExporting) {
+          ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+          ctx.strokeRect(it.x-2, it.y-2, it.w+4, it.h+4);
+        }
+        ctx.restore();
+      });
+    }
 
     // ==========================================
-    // 이벤트 리스너 연결
+    // 6. UI 이벤트 (태그, 텍스트 입력, 미디어 처리)
     // ==========================================
-    // 텍스트 입력
-    const inputs = ['valTitle', 'valNameA', 'valNameB', 'valQuote'];
-    inputs.forEach(id => {
-      document.getElementById(id).addEventListener('input', (e) => {
+    // 태그 토글 로직
+    document.querySelectorAll('.tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tag = btn.dataset.tag;
+        if (state.tags.has(tag)) {
+          state.tags.delete(tag);
+          btn.classList.remove('active');
+        } else {
+          state.tags.add(tag);
+          btn.classList.add('active');
+        }
+        // 태그에 따라 어울리는 위젯을 최상단으로 배열 재조정
+        const activeWidgets = getActiveWidgets();
+        renderOrder = [...new Set([...renderOrder, ...activeWidgets])]; 
+      });
+    });
+
+    // 텍스트 동기화
+    ['valNameA', 'valNameB', 'valQuote'].forEach(id => {
+      document.getElementById(id).addEventListener('input', e => {
         const key = id.replace('val', '');
         state[key.charAt(0).toLowerCase() + key.slice(1)] = e.target.value;
-        renderTemplate();
       });
     });
 
-    // 테마 버튼
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.theme = btn.dataset.theme;
-        renderTemplate();
-      });
+    // 위치 초기화
+    document.getElementById('btnReset').addEventListener('click', () => {
+      widgets = JSON.parse(JSON.stringify(defaultWidgets));
     });
 
-    // 다운로드
-    document.getElementById('btnDownload').onclick = () => {
-      canvas.discardActiveObject(); // 선택 해제
-      canvas.renderAll();
-      const link = document.createElement('a');
-      link.download = `DOPA_CARD_${Date.now()}.png`;
-      link.href = canvas.toDataURL({ format: 'png', quality: 1 });
-      link.click();
-    };
+    // 배경 GIF/이미지 디코더 (기획자님 로직 그대로)
+    document.getElementById('bgInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      document.getElementById('statusMsg').textContent = "미디어 분석 중...";
+      try {
+        const buffer = await file.arrayBuffer(); const bytes = new Uint8Array(buffer);
+        if (bytes[0]===0x47 && bytes[1]===0x49 && bytes[2]===0x46) {
+          const ReaderClass = (window.omggif && window.omggif.GifReader) || window.GifReader;
+          const reader = new ReaderClass(bytes); const numFrames = reader.numFrames();
+          if (numFrames > 1) {
+            const w = reader.width, h = reader.height; const canvasList = []; const framePixels = new Uint8ClampedArray(w * h * 4);
+            for (let i = 0; i < numFrames; i++) {
+              reader.decodeAndBlitFrameRGBA(i, framePixels);
+              const fCanvas = document.createElement('canvas'); fCanvas.width = w; fCanvas.height = h;
+              const fCtx = fCanvas.getContext('2d'); const imgData = fCtx.createImageData(w, h);
+              imgData.data.set(framePixels); fCtx.putImageData(imgData, 0, 0); canvasList.push(fCanvas);
+            }
+            state.bgMedia = { isGif: true, frames: canvasList, width: w, height: h };
+            document.getElementById('statusMsg').textContent = "GIF 로드 완료!";
+            return;
+          }
+        }
+      } catch (err) {}
+      
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => { state.bgMedia = { isGif: false, img, width: img.width, height: img.height }; document.getElementById('statusMsg').textContent = "이미지 로드 완료!"; };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
 
-    // 초기 렌더링
-    document.fonts.ready.then(() => renderTemplate());
-    setTimeout(renderTemplate, 500);
+    // 애니메이션 루프 실행
+    function startLoop() {
+      if(previewTimer) clearInterval(previewTimer);
+      previewTimer = setInterval(() => {
+        if (!isExporting) { animProgress = (animProgress + 0.007) % 1; draw(animProgress); }
+      }, 30);
+    }
+    startLoop();
+
+    // ==========================================
+    // 7. MP4 / GIF 고화질 내보내기 (기존 코드 완벽 보존)
+    // ==========================================
+    const bar = document.getElementById('loadingBar');
+    const fill = document.getElementById('progressFill');
+    const resultArea = document.getElementById('resultArea');
+
+    document.getElementById('btnExportMP4').addEventListener('click', () => {
+      isExporting = true; bar.classList.remove('hidden'); resultArea.classList.add('hidden');
+      draw(0.0);
+      
+      const stream = canvas.captureStream(30);
+      let mimeType = 'video/mp4';
+      if (!MediaRecorder.isTypeSupported('video/mp4')) mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+      
+      let recorder;
+      try { recorder = new MediaRecorder(stream, { mimeType }); } catch (e) { recorder = new MediaRecorder(stream); }
+      const chunks = [];
+      recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
+      
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: recorder.mimeType || 'video/mp4' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `DOPA_CARD_${Date.now()}.mp4`; link.click();
+        isExporting = false; bar.classList.add('hidden'); resultArea.classList.remove('hidden');
+      };
+
+      recorder.start();
+      let currentFrame = 0; const totalSteps = 180; // 6초
+      const stepInterval = setInterval(() => {
+        draw(currentFrame / totalSteps); currentFrame++;
+        fill.style.width = `${Math.min(100, (currentFrame / totalSteps) * 100)}%`;
+        if (currentFrame >= totalSteps) { clearInterval(stepInterval); recorder.stop(); }
+      }, 33);
+    });
+
+    document.getElementById('btnExportGIF').addEventListener('click', () => {
+      isExporting = true; bar.classList.remove('hidden'); resultArea.classList.add('hidden');
+      const frames = []; const totalFrames = 20;
+      for (let i = 0; i < totalFrames; i++) { draw(i / totalFrames); frames.push(canvas.toDataURL('image/png')); }
+      fill.style.width = '50%';
+      
+      gifshot.createGIF({ images: frames, gifWidth: 960, gifHeight: 540, interval: 0.25, numWorkers: 2 }, function(obj) {
+        isExporting = false; bar.classList.add('hidden');
+        if (!obj.error) {
+          const link = document.createElement('a'); link.href = obj.image; link.download = `DOPA_ANIM_${Date.now()}.gif`; link.click();
+          resultArea.classList.remove('hidden');
+        }
+      });
+    });
   </script>
 </body>
 </html>
