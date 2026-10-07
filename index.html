@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>도파 페어틀 메이커 (모바일 16:9 최적화)</title>
+  <title>도파 페어틀 메이커</title>
   
-  <!-- Fabric.js & Gifler & Noto Sans Font -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
   <script src="https://unpkg.com/gifler@0.1.0/gifler.min.js"></script>
   
@@ -14,98 +13,96 @@
   <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Myeongjo:wght@700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ==================== 모바일 100% 최적화 레이아웃 ==================== */
-    body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: #121212; color: #fff; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; touch-action: none; }
+    /* 전체 배경: 더 깊은 다크톤으로 고급스럽게 */
+    body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: #0a0a0a; color: #fff; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; touch-action: none; }
     
-    /* [핵심] 상단 캔버스 구역: 16:9 가로 화면을 모바일 portrait 너비에 100% 밀착 (aspect-ratio 강제) */
-    .canvas-area { 
-      width: 100%; 
-      aspect-ratio: 16 / 9; /* 세카 가로 16:9 비율 고정 */
-      background-color: #1a1a24; 
-      position: relative; 
-      overflow: hidden; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      flex-shrink: 0; /* 절대 찌그러지거나 작아지지 않음 */
+    /* 1. 상단 여백 구역 */
+    .canvas-section {
+      padding: 24px 20px; /* 캔버스 주변에 예쁜 여백 주기 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
     }
-    
-    canvas { display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
-    
-    /* 자석 가이드라인 (스냅 시 표시) */
-    .snap-line-v { position: absolute; width: 1.5px; height: 100%; background: #ff4757; left: 50%; top: 0; display: none; pointer-events: none; z-index: 99; }
-    .snap-line-h { position: absolute; width: 100%; height: 1.5px; background: #ff4757; top: 50%; left: 0; display: none; pointer-events: none; z-index: 99; }
 
-    /* [핵심] 하단 마법의 서랍: 상단 16:9를 제외한 남은 공간을 꽉 채우며 부드럽게 스크롤 */
-    .drawer { 
-      flex: 1; 
-      background-color: #1e1e2f; 
-      border-radius: 20px 20px 0 0; 
-      margin-top: -5px; 
-      z-index: 10; 
-      display: flex; 
-      flex-direction: column; 
-      box-shadow: 0 -5px 15px rgba(0,0,0,0.5); 
+    /* 2. 독립된 뷰파인더 (둥근 모서리 + 16:9 꽉 잡아줌) */
+    .canvas-wrapper {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-color: #15151e;
+      border-radius: 16px; /* 둥근 모서리 복구! */
+      border: 1px solid #2a2a35; /* 은은한 테두리 */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      position: relative;
       overflow: hidden;
     }
     
-    /* 탭 메뉴 */
-    .tab-menu { display: flex; overflow-x: auto; gap: 8px; padding: 15px 15px 10px 15px; border-bottom: 1px solid #2d2d3f; flex-shrink: 0; }
-    .tab-menu::-webkit-scrollbar { display: none; }
-    .tab-btn { background: #2d2d3f; color: #aaa; border: none; padding: 10px 16px; border-radius: 20px; font-weight: bold; font-size: 13px; cursor: pointer; white-space: nowrap; transition: 0.2s; }
-    .tab-btn.active { background: #ff4757; color: white; }
+    canvas { display: block; }
     
-    /* 탭 세부 내용 */
-    .tab-content { flex: 1; overflow-y: auto; padding: 15px; display: none; padding-bottom: 40px; }
+    .snap-line-v { position: absolute; width: 1.5px; height: 100%; background: #ff4757; left: 50%; top: 0; display: none; pointer-events: none; z-index: 99; }
+    .snap-line-h { position: absolute; width: 100%; height: 1.5px; background: #ff4757; top: 50%; left: 0; display: none; pointer-events: none; z-index: 99; }
+
+    /* 3. 하단 서랍 (에셋 라이브러리) */
+    .drawer { 
+      flex: 1; 
+      background-color: #141414; 
+      border-radius: 24px 24px 0 0; 
+      border-top: 1px solid #222;
+      z-index: 10; 
+      display: flex; 
+      flex-direction: column; 
+      overflow: hidden;
+    }
+    
+    .tab-menu { display: flex; overflow-x: auto; gap: 8px; padding: 20px 20px 10px 20px; flex-shrink: 0; }
+    .tab-menu::-webkit-scrollbar { display: none; }
+    .tab-btn { background: #222; color: #888; border: 1px solid #333; padding: 10px 16px; border-radius: 20px; font-weight: bold; font-size: 13px; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+    .tab-btn.active { background: #ff4757; color: white; border-color: #ff4757; }
+    
+    .tab-content { flex: 1; overflow-y: auto; padding: 0 20px 40px 20px; display: none; margin-top: 10px; }
     .tab-content.active { display: block; }
     
-    /* 서브 카테고리 칩 */
-    .sub-categories { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px dashed #2d2d3f; }
+    .sub-categories { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px dashed #333; }
     .sub-categories::-webkit-scrollbar { display: none; }
-    .sub-btn { background: #27293d; color: #ccc; border: none; padding: 6px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; }
-    .sub-btn.active { background: #ff4a5a; color: white; }
+    .sub-btn { background: #222; color: #ccc; border: none; padding: 8px 14px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .sub-btn.active { background: #444; color: white; }
 
-    /* 에셋 라이브러리 카드 */
     .asset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
-    .asset-card { background: #252538; border-radius: 12px; padding: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px solid transparent; cursor: pointer; text-align: center; }
-    .asset-thumb { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; font-size: 26px; border-radius: 8px; overflow: hidden; background: #1a1a24; }
+    .asset-card { background: #1c1c1c; border-radius: 12px; padding: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #2a2a2a; cursor: pointer; text-align: center; }
+    .asset-thumb { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; font-size: 26px; border-radius: 8px; overflow: hidden; background: #111; }
     .asset-thumb img, .asset-thumb svg { width: 90%; height: 90%; object-fit: contain; }
     .asset-title { font-size: 10px; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; font-weight: bold; }
 
-    /* 모바일 엄지 손가락 친화적 버튼 */
-    .btn { background: #2d2d3f; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 14px; width: 100%; text-align: center; display: block; cursor: pointer; margin-bottom: 10px; box-sizing: border-box; }
-    .btn-primary { background: #ff4757; }
-    .btn-frame { background: #4CAF50; animation: pulse 1.5s infinite; }
-    .btn-download { background: #00bcd4; margin-top: 20px; }
+    .btn { color: white; border: none; padding: 16px; border-radius: 14px; font-weight: bold; font-size: 15px; width: 100%; text-align: center; display: block; cursor: pointer; margin-bottom: 12px; box-sizing: border-box; }
+    .btn-primary { background: linear-gradient(135deg, #ff6b81, #ff4757); box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3); }
+    .btn-frame { background: #4CAF50; }
+    .btn-download { background: #fff; color: #000; margin-top: 20px; }
     input[type="file"] { display: none; }
 
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-
-    /* 텍스트 편집 도구 */
-    .text-panel { background: #1a1a24; padding: 15px; border-radius: 12px; border: 1px solid #2d2d3f; margin-top: 10px; }
+    .text-panel { background: #1c1c1c; padding: 15px; border-radius: 14px; border: 1px solid #2a2a2a; margin-top: 10px; }
     .font-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 10px; }
     .font-scroll::-webkit-scrollbar { display: none; }
-    .font-item { width: 45px; height: 45px; background: #2d2d3f; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; font-weight: bold; }
-    .font-item.active { border-color: #ff4757; background: #ff475711; }
+    .font-item { width: 45px; height: 45px; background: #222; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; border: 1px solid #333; flex-shrink: 0; font-weight: bold; }
+    .font-item.active { border-color: #ff4757; background: #ff475722; color: #ff4757; }
     
     .control-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 13px; color: #ccc; }
-    .control-row input[type="color"] { width: 35px; height: 35px; border: none; border-radius: 5px; cursor: pointer; background: transparent; padding: 0; }
+    .control-row input[type="color"] { width: 35px; height: 35px; border: none; border-radius: 6px; cursor: pointer; background: transparent; padding: 0; }
     .control-row input[type="range"] { flex: 1; accent-color: #ff4757; }
 
-    /* 글자 프리셋 */
     .style-presets { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
     .style-presets::-webkit-scrollbar { display: none; }
-    .preset-btn { background: #27293d; color: #fff; border: 1px solid #333; padding: 8px 14px; border-radius: 12px; font-size: 11px; cursor: pointer; white-space: nowrap; font-weight: bold; }
+    .preset-btn { background: #222; color: #fff; border: 1px solid #333; padding: 10px 16px; border-radius: 12px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <!-- ==================== 1. 상단 캔버스 구역 (완벽한 16:9 밀착) ==================== -->
-  <div class="canvas-area" id="canvasArea">
-    <canvas id="mainCanvas"></canvas>
-    <!-- 자석 피팅 가이드 선 -->
-    <div class="snap-line-v" id="snapV"></div>
-    <div class="snap-line-h" id="snapH"></div>
+  <!-- ==================== 1. 상단 뷰파인더 캔버스 ==================== -->
+  <div class="canvas-section">
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <canvas id="mainCanvas"></canvas>
+      <div class="snap-line-v" id="snapV"></div>
+      <div class="snap-line-h" id="snapH"></div>
+    </div>
   </div>
 
   <!-- ==================== 2. 하단 서랍 (에셋 라이브러리) ==================== -->
@@ -120,24 +117,23 @@
     <!-- 배경/사진 -->
     <div class="tab-content active" id="media">
       <label class="btn btn-primary">
-        ➕ 내 폰에서 사진/GIF 올리기 📸
+        ➕ 내 폰에서 사진/GIF 올리기
         <input type="file" id="uploadImage" accept="image/*, image/gif">
       </label>
-      <p style="font-size: 11px; color: #888; text-align: center; margin-top: 5px;">모바일 가로 16:9 캔버스 위에 자유롭게 배치해보세요.</p>
+      <p style="font-size: 12px; color: #666; text-align: center; margin-top: 8px;">16:9 캔버스 뷰파인더 안에 자유롭게 배치해보세요.</p>
     </div>
 
     <!-- 템플릿/틀 -->
     <div class="tab-content" id="frames">
       <div class="sub-categories">
-        <button class="sub-btn active" data-filter="all">전체</button>
+        <button class="sub-btn active" data-filter="all">전체보기</button>
         <button class="sub-btn" data-filter="royal">👑 로판</button>
         <button class="sub-btn" data-filter="sns">📱 SNS</button>
         <button class="sub-btn" data-filter="fourcut">🎞️ 네컷</button>
       </div>
 
-      <!-- 스마트 마스킹 버튼 (틀 누를 때만 보임) -->
       <div id="frameActionArea" style="display: none; background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: 12px; border: 1px dashed #4CAF50; margin-bottom: 12px;">
-        <p style="font-size: 11px; color: #4CAF50; margin: 0 0 6px 0; text-align: center; font-weight: bold;">✅ 프레임(틀)이 선택되었습니다!</p>
+        <p style="font-size: 12px; color: #4CAF50; margin: 0 0 8px 0; text-align: center; font-weight: bold;">✅ 프레임(틀)이 선택되었습니다!</p>
         <label class="btn btn-frame" style="margin-bottom: 0;">
           🖼️ 이 틀 안에 사진 쏙! 넣기
           <input type="file" id="uploadToFrame" accept="image/*, image/gif">
@@ -152,21 +148,21 @@
       <button class="btn btn-primary" id="addTextBtn">📝 새로운 텍스트 추가</button>
       
       <div class="text-panel" id="textProps" style="display: none;">
-        <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: bold; color: #888;">초고속 글씨 스타일 프리셋</p>
+        <p style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold; color: #888;">초고속 글씨 스타일 프리셋</p>
         <div class="style-presets">
-          <button class="preset-btn" id="presetA" style="background: linear-gradient(135deg, #ff758c, #ff7eb3); border: 2px solid #fff;">🌸 애정은 병열</button>
-          <button class="preset-btn" id="presetB" style="background: #111; color: #ffd700; border: 2px solid #ffd700;">🏯 동양풍 황금빛</button>
-          <button class="preset-btn" id="presetC" style="background: #000; color: #00f0ff; border: 2px solid #ff007f;">👾 사이버 네온</button>
+          <button class="preset-btn" id="presetA" style="background: linear-gradient(135deg, #ff758c, #ff7eb3); border-color: #ff758c;">🌸 애정은 병열</button>
+          <button class="preset-btn" id="presetB" style="background: #1a1a1a; color: #ffd700; border-color: #ffd700;">🏯 동양풍 황금빛</button>
+          <button class="preset-btn" id="presetC" style="background: #000; color: #00f0ff; border-color: #ff007f;">👾 사이버 네온</button>
         </div>
 
-        <p style="margin: 10px 0 8px 0; font-size: 11px; font-weight: bold; color: #888;">폰트 고르기 (인스타형)</p>
+        <p style="margin: 15px 0 10px 0; font-size: 12px; font-weight: bold; color: #888;">폰트 고르기 (인스타형)</p>
         <div class="font-scroll">
           <div class="font-item active" style="font-family: 'Noto Sans KR';" data-font="Noto Sans KR">가</div>
           <div class="font-item" style="font-family: 'Nanum Myeongjo';" data-font="Nanum Myeongjo">명</div>
           <div class="font-item" style="font-family: 'Black Han Sans';" data-font="Black Han Sans">손</div>
         </div>
 
-        <div class="control-row">
+        <div class="control-row" style="margin-top: 15px;">
           <span style="width: 50px;">글자색</span>
           <input type="color" id="textColor" value="#ffffff">
         </div>
@@ -188,13 +184,13 @@
     <!-- 꾸미기/저장 -->
     <div class="tab-content" id="stickers">
       <p style="font-size: 12px; color: #888; margin: 0 0 10px 0;">✨ 터치해서 스티커 올리기</p>
-      <div class="asset-grid" id="stickersGrid" style="margin-bottom: 20px;"></div>
+      <div class="asset-grid" id="stickersGrid" style="margin-bottom: 25px;"></div>
 
-      <p style="font-size: 12px; color: #888; border-top: 1.5px solid #2d2d3f; padding-top: 15px; margin: 0 0 10px 0;">🎞️ 사진 빠른 필터 (보정)</p>
+      <p style="font-size: 12px; color: #888; border-top: 1px solid #2a2a2a; padding-top: 15px; margin: 0 0 10px 0;">🎞️ 사진 빠른 필터 (보정)</p>
       <div style="display:flex; gap:8px;">
-        <button class="btn" style="background:#555; font-size: 12px; padding: 10px;" onclick="applyFilter('grayscale')">🎞️ 흑백</button>
-        <button class="btn" style="background:#555; font-size: 12px; padding: 10px;" onclick="applyFilter('sepia')">📜 세피아</button>
-        <button class="btn" style="background:#444; font-size: 12px; padding: 10px;" onclick="clearFilters()">🚫 되돌리기</button>
+        <button class="btn" style="background:#222; border: 1px solid #333; font-size: 13px; padding: 12px;" onclick="applyFilter('grayscale')">🎞️ 흑백</button>
+        <button class="btn" style="background:#222; border: 1px solid #333; font-size: 13px; padding: 12px;" onclick="applyFilter('sepia')">📜 세피아</button>
+        <button class="btn" style="background:#111; border: 1px solid #333; color: #888; font-size: 13px; padding: 12px;" onclick="clearFilters()">🚫 되돌리기</button>
       </div>
 
       <button class="btn btn-download" id="downloadBtn">💾 완성된 페어틀 고화질(16:9) 저장</button>
@@ -251,20 +247,21 @@
       });
     });
 
-    // [ 캔버스 16:9 고정 해상도 및 모바일 동적 스케일링 ]
+    // [ 뷰파인더 캔버스 세팅 ]
     const BASE_WIDTH = 1280;
     const BASE_HEIGHT = 720;
-    const canvas = new fabric.Canvas('mainCanvas', { backgroundColor: '#1a1a1a', preserveObjectStacking: true });
+    const canvas = new fabric.Canvas('mainCanvas', { backgroundColor: 'transparent', preserveObjectStacking: true });
 
     function resizeCanvas() {
-      const area = document.getElementById('canvasArea');
-      const width = area.clientWidth; // 모바일 세로 모드에서의 화면 100% 너비 (390px 등)
-      const height = width * (9 / 16); // 16:9 높이 자동 도출
+      // 이제 화면 폭이 아니라 '예쁘게 마진이 들어간 뷰파인더 껍데기(wrapper)'의 크기를 기준으로 잡습니다.
+      const wrapper = document.getElementById('canvasWrapper');
+      const width = wrapper.clientWidth;
+      const height = wrapper.clientHeight;
       
       canvas.setWidth(width);
       canvas.setHeight(height);
       
-      const scale = width / BASE_WIDTH; // 모바일 크기만큼 캔버스 비율 축소(비율 유지)
+      const scale = width / BASE_WIDTH;
       canvas.setZoom(scale);
       canvas.renderAll();
     }
@@ -469,7 +466,15 @@
       canvas.renderAll();
       const link = document.createElement('a');
       link.download = `세션카드_${Date.now()}.png`;
-      link.href = canvas.toDataURL({ format: 'png', multiplier: 1 / canvas.getZoom() });
+      
+      // 배경색을 유지하며 원본 비율(1280x720)로 캡처되도록 설정
+      const dataUrl = canvas.toDataURL({
+        format: 'png',
+        multiplier: 1 / canvas.getZoom(),
+        backgroundColor: '#15151e'
+      });
+      
+      link.href = dataUrl;
       link.click();
     });
 
