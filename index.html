@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DOPA 만능 페어틀 엔진 (시나리오 제목 & 폰트팩 추가)</title>
+  <title>DOPA 만능 페어틀 (36개 태그 + 다이어리 통합)</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.js"></script>
 
-  <!-- ⭐ 상업용 무료 폰트 15종 초거대 로딩팩 ⭐ -->
+  <!-- 상업용 무료 폰트 15종 -->
   <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Cinzel:wght@700&family=Cute+Font&family=Do+Hyeon&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Jua&family=Nanum+Brush+Script&family=Nanum+Myeongjo:wght@700;800&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;700;900&family=Share+Tech+Mono&family=Single+Day&family=Song+Myung&family=Yeon+Sung&display=swap" rel="stylesheet">
 
   <style>
@@ -20,16 +20,14 @@
     #previewCanvas { width: 100%; height: 100%; cursor: grab; }
     #previewCanvas:active { cursor: grabbing; }
 
-    /* 태그 토글 버튼 스타일 */
-    .tag-btn { padding: 8px 14px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-    .tag-btn.active { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
-    
-    /* 장르별 활성화 컬러 */
-    .tag-btn.active[data-tag="cyber"] { background: #ff0055; color: #fff; border-color: #ff0055; box-shadow: 0 0 15px rgba(255,0,85,0.4); }
-    .tag-btn.active[data-tag="digicam"] { background: #10b981; color: #fff; border-color: #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.4); }
-    .tag-btn.active[data-tag="wuxia"] { background: #d4af37; color: #000; border-color: #d4af37; box-shadow: 0 0 15px rgba(212,175,55,0.4); }
+    /* 태그 분류 타이틀 */
+    .tag-category { font-size: 11px; color: #71717a; margin-top: 12px; margin-bottom: 6px; font-weight: bold; }
 
-    .input-box { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 13px; outline: none; margin-top: 4px; transition: 0.2s; }
+    /* 태그 버튼 공통 스타일 */
+    .tag-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #27272a; background: #111; color: #a1a1aa; font-size: 11px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+    .tag-btn.active { background: #fff; color: #000; border-color: #fff; font-weight: bold; }
+
+    .input-box { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 12px; outline: none; margin-top: 4px; transition: 0.2s; }
     .input-box:focus { border-color: #fff; }
   </style>
 </head>
@@ -39,28 +37,75 @@
     <div class="font-black tracking-widest text-lg text-white">DOPA <span class="text-[10px] text-zinc-500 font-mono font-normal">CORE ENGINE</span></div>
   </header>
 
-  <main class="max-w-xl mx-auto p-4 space-y-6">
+  <main class="max-w-xl mx-auto p-4 space-y-4">
     
     <!-- 1. 캔버스 영역 -->
     <div>
       <div class="flex justify-between items-end mb-2">
         <span class="text-sm font-bold text-zinc-300">PREVIEW</span>
-        <span class="text-[10px] text-zinc-500 font-mono" id="statusMsg">위젯과 제목을 드래그해서 배치하세요</span>
+        <span class="text-[10px] text-zinc-500 font-mono" id="statusMsg">위젯을 드래그해서 배치하세요</span>
       </div>
       <div class="canvas-wrapper">
         <canvas id="previewCanvas" width="960" height="540"></canvas>
       </div>
     </div>
 
-    <!-- 2. 태그 조립 -->
-    <div>
-      <span class="text-sm font-bold text-zinc-300 block mb-3">1. 서사 및 장르 태그 (중복 선택 가능)</span>
-      <div class="flex flex-wrap gap-2" id="tagContainer">
-        <button class="tag-btn active" data-tag="cyber">#사이버펑크</button>
-        <button class="tag-btn" data-tag="digicam">#디카/HUD</button>
-        <button class="tag-btn" data-tag="wuxia">#무협/동양풍</button>
-        <button class="tag-btn" data-tag="romance">#로맨스</button>
+    <!-- 2. 기획자님의 36개 방대한 태그 조립 (카테고리별) -->
+    <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+      <span class="text-sm font-bold text-zinc-300 block mb-1">1. 장르 톤 (서사 태그)</span>
+      <p class="text-[10px] text-zinc-500 mb-3">태그를 조합하면 캔버스의 무드와 위젯이 자동으로 바뀝니다.</p>
+      
+      <!-- 관계 성향 -->
+      <div class="tag-category">관계 · 성향</div>
+      <div class="flex flex-wrap gap-1.5" id="tagGroup1">
+        <button class="tag-btn" data-tag="gl">#GL</button>
+        <button class="tag-btn" data-tag="bl">#BL</button>
+        <button class="tag-btn" data-tag="hl">#HL</button>
+        <button class="tag-btn" data-tag="non_romance">#논로맨스</button>
+        <button class="tag-btn" data-tag="adult_romance">#어른의연애</button>
+        <button class="tag-btn" data-tag="reverse_age">#역키잡</button>
+        <button class="tag-btn active" data-tag="friendship">#우정</button>
+        <button class="tag-btn" data-tag="age_gap">#연상연하</button>
+        <button class="tag-btn" data-tag="live_together">#동거</button>
+        <button class="tag-btn" data-tag="triangle">#삼각관계</button>
+        <button class="tag-btn" data-tag="office">#사내연애</button>
+        <button class="tag-btn" data-tag="marry_first">#선결혼후연애</button>
+      </div>
+
+      <!-- 감정선 -->
+      <div class="tag-category">감정선</div>
+      <div class="flex flex-wrap gap-1.5" id="tagGroup2">
+        <button class="tag-btn" data-tag="obsess">#집착</button>
         <button class="tag-btn" data-tag="hate">#혐관</button>
+        <button class="tag-btn" data-tag="love_hate">#애증</button>
+        <button class="tag-btn" data-tag="save_each">#쌍방구원</button>
+        <button class="tag-btn" data-tag="save">#구원</button>
+        <button class="tag-btn" data-tag="crush">#짝사랑</button>
+        <button class="tag-btn" data-tag="regret">#후회</button>
+        <button class="tag-btn" data-tag="ruin">#피폐</button>
+        <button class="tag-btn active" data-tag="sweet">#달달</button>
+        <button class="tag-btn" data-tag="illusion">#착각</button>
+        <button class="tag-btn active" data-tag="daily">#일상</button>
+        <button class="tag-btn" data-tag="tsundere">#츤데레</button>
+      </div>
+
+      <!-- 설정 세계관 -->
+      <div class="tag-category">설정 · 세계관</div>
+      <div class="flex flex-wrap gap-1.5" id="tagGroup3">
+        <button class="tag-btn" data-tag="status_gap">#신분차</button>
+        <button class="tag-btn" data-tag="contract">#계약</button>
+        <button class="tag-btn" data-tag="battle">#배틀</button>
+        <button class="tag-btn" data-tag="occult">#오컬트</button>
+        <button class="tag-btn" data-tag="superpower">#이능력</button>
+        <button class="tag-btn" data-tag="modern_fantasy">#현대판타지</button>
+        <button class="tag-btn" data-tag="sf">#SF</button>
+        <button class="tag-btn" data-tag="cyber">#사이버펑크</button>
+        <button class="tag-btn" data-tag="apocalypse">#아포칼립스</button>
+        <button class="tag-btn" data-tag="regression">#회귀</button>
+        <button class="tag-btn" data-tag="possession">#빙의</button>
+        <button class="tag-btn" data-tag="reincarnation">#환생</button>
+        <button class="tag-btn" data-tag="wuxia">#동양풍(무협)</button>
+        <button class="tag-btn" data-tag="digicam">#디카(HUD)</button>
       </div>
     </div>
 
@@ -74,19 +119,19 @@
           <input type="file" id="bgInput" accept="image/*, image/gif" class="hidden">
         </label>
         <button id="btnReset" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold p-3 rounded-lg transition">
-          🔄 위치 초기화
+          🔄 레이아웃 리셋
         </button>
       </div>
 
-      <!-- ⭐ 시나리오 제목 및 폰트 추가 영역 ⭐ -->
       <div class="grid grid-cols-2 gap-3 mt-2 border-t border-zinc-800 pt-3">
         <div>
           <label class="text-[11px] text-zinc-400 font-bold">시나리오 제목 (Title)</label>
-          <input type="text" id="valTitle" class="input-box" value="애정은 병열">
+          <input type="text" id="valTitle" class="input-box" value="너와의 하루">
         </div>
         <div>
           <label class="text-[11px] text-zinc-400 font-bold">타이틀 폰트 (15종)</label>
-          <select id="valTitleFont" class="input-box cursor-pointer">
+          <select id="valTitleFont" class="input-box cursor-pointer" style="padding: 9px;">
+            <option value="Single Day">싱글 데이 (귀여운 다꾸)</option>
             <option value="Black Han Sans">블랙 한 산스 (두꺼운 제목)</option>
             <option value="Noto Sans KR">노토 산스 (깔끔 고딕)</option>
             <option value="Do Hyeon">도현 (레트로 타이틀)</option>
@@ -98,7 +143,6 @@
             <option value="Yeon Sung">연성 (무협/동양풍)</option>
             <option value="Nanum Pen Script">나눔 펜 (정갈한 펜글씨)</option>
             <option value="Nanum Brush Script">나눔 붓 (거친 붓글씨)</option>
-            <option value="Single Day">싱글 데이 (귀여운 다꾸)</option>
             <option value="Cute Font">큐트 폰트 (픽셀/아기자기)</option>
             <option value="Share Tech Mono">Share Tech (사이버/영문)</option>
             <option value="Cinzel">Cinzel (로판/고급 영문)</option>
@@ -118,7 +162,7 @@
       </div>
       <div>
         <label class="text-[11px] text-zinc-400 font-bold">대사 / 캐치프레이즈</label>
-        <input type="text" id="valQuote" class="input-box" value="잡을 수 있다면 잡아봐.">
+        <input type="text" id="valQuote" class="input-box" value="오늘도 완벽한 하루네!">
       </div>
     </div>
 
@@ -148,13 +192,14 @@
     const canvas = document.getElementById('previewCanvas');
     const ctx = canvas.getContext('2d');
     
+    // 초기 설정: 일상+달달+우정 (다꾸 스타일)
     const state = {
-      tags: new Set(['cyber']),
-      title: '애정은 병열',
-      titleFont: 'Black Han Sans', // 기본 타이틀 폰트
+      tags: new Set(['daily', 'sweet', 'friendship']),
+      title: '너와의 하루',
+      titleFont: 'Single Day', 
       nameA: '윤세라',
       nameB: '백우진',
-      quote: '잡을 수 있다면 잡아봐.',
+      quote: '오늘도 완벽한 하루네!',
       bgMedia: null
     };
 
@@ -163,25 +208,33 @@
     let isExporting = false;
 
     // ==========================================
-    // 2. 위젯 위치 데이터 (초기값)
-    // ⭐ 세션카드용 타이틀 박스 추가
+    // 2. 위젯 위치 데이터 (모든 장르 총망라)
     // ==========================================
     const defaultWidgets = {
-      titleBox:   { id: 'titleBox', x: 280, y: 150, w: 400, h: 90 }, // 세션카드 제목 (자동 길이 조절됨)
+      titleBox:   { id: 'titleBox', x: 50, y: 50, w: 400, h: 90 }, 
+      quoteBox:   { id: 'quoteBox', x: 50, y: 400, w: 300, h: 60 },
+      // 사이버/SF
       console:    { id: 'console', x: 280, y: 310, w: 400, h: 180 },
       barcode:    { id: 'barcode', x: 40, y: 450, w: 180, h: 70 },
+      // 피폐/집착 경고창
+      warningBox: { id: 'warningBox', x: 330, y: 200, w: 300, h: 60 },
+      // 일상/달달 (다이어리/다꾸)
+      polaroid:   { id: 'polaroid', x: 550, y: 80, w: 250, h: 320 },
+      tape1:      { id: 'tape1', x: 530, y: 60, w: 100, h: 30 },
+      tape2:      { id: 'tape2', x: 720, y: 360, w: 120, h: 35 },
+      // 디카
       afBox:      { id: 'afBox', x: 430, y: 190, w: 100, h: 100 },
       dateBox:    { id: 'dateBox', x: 40, y: 480, w: 250, h: 40 },
+      // 무협/동양
       wuxiaFrame: { id: 'wuxiaFrame', x: 40, y: 40, w: 880, h: 460 },
-      wuxiaText:  { id: 'wuxiaText', x: 800, y: 80, w: 60, h: 350 },
-      quoteBox:   { id: 'quoteBox', x: 50, y: 50, w: 300, h: 60 }
+      wuxiaText:  { id: 'wuxiaText', x: 800, y: 80, w: 60, h: 350 }
     };
     
     let widgets = JSON.parse(JSON.stringify(defaultWidgets));
     let renderOrder = Object.keys(widgets); 
 
     // ==========================================
-    // 3. 기획자님의 드래그 & 스냅 엔진 (유지)
+    // 3. 기획자님의 드래그 & 스냅 엔진
     // ==========================================
     let draggingItem = null;
     let dragOffset = { x: 0, y: 0 };
@@ -223,6 +276,7 @@
       let newY = Math.round(pos.y - dragOffset.y);
       const item = widgets[draggingItem];
 
+      // 자석 스냅
       const cx = newX + item.w / 2;
       const cy = newY + item.h / 2;
       if (Math.abs(cx - canvas.width/2) < SNAP_THRESHOLD) newX = canvas.width/2 - item.w/2;
@@ -232,56 +286,88 @@
       item.y = newY;
       if (e.cancelable) e.preventDefault();
     }
-
     function handleDragEnd() { draggingItem = null; }
 
     canvas.addEventListener('mousedown', handleDragStart); window.addEventListener('mousemove', handleDragMove); window.addEventListener('mouseup', handleDragEnd);
     canvas.addEventListener('touchstart', handleDragStart, { passive: false }); window.addEventListener('touchmove', handleDragMove, { passive: false }); window.addEventListener('touchend', handleDragEnd);
 
     // ==========================================
-    // 4. 태그에 따라 활성화할 위젯 룰 엔진
+    // 4. 태그 분석 및 위젯/스타일 매핑 (Tag Rule Engine)
     // ==========================================
     function getActiveWidgets() {
-      // ⭐ 타이틀 박스와 대사 박스는 항시 노출
-      let active = ['titleBox', 'quoteBox']; 
-      if (state.tags.has('cyber')) active.push('console', 'barcode');
-      if (state.tags.has('digicam')) active.push('afBox', 'dateBox');
-      if (state.tags.has('wuxia')) active.push('wuxiaFrame', 'wuxiaText');
+      let active = ['titleBox', 'quoteBox']; // 기본
+
+      // 1. 다이어리/다꾸 위젯 그룹 (일상, 달달, 우정, 짝사랑 등)
+      if (state.tags.has('daily') || state.tags.has('sweet') || state.tags.has('friendship') || state.tags.has('crush')) {
+        active.push('polaroid', 'tape1', 'tape2');
+      }
+      
+      // 2. 피폐/경고 위젯 그룹 (집착, 혐관, 애증, 피폐, 배틀 등)
+      if (state.tags.has('obsess') || state.tags.has('hate') || state.tags.has('love_hate') || state.tags.has('ruin') || state.tags.has('battle') || state.tags.has('apocalypse')) {
+        active.push('warningBox');
+      }
+
+      // 3. 사이버/SF 위젯 그룹
+      if (state.tags.has('cyber') || state.tags.has('sf') || state.tags.has('apocalypse')) {
+        active.push('console', 'barcode');
+      }
+
+      // 4. 무협/동양풍 위젯 그룹
+      if (state.tags.has('wuxia') || state.tags.has('reincarnation') || state.tags.has('regression')) {
+        active.push('wuxiaFrame', 'wuxiaText');
+      }
+
+      // 5. 디카/HUD 위젯 그룹
+      if (state.tags.has('digicam')) {
+        active.push('afBox', 'dateBox');
+      }
+
       return active;
     }
 
     // ==========================================
-    // 5. 메인 렌더링 루프 (테마 모듈 조립)
+    // 5. 메인 렌더링 루프 
     // ==========================================
     function draw(prog = animProgress) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // --- [1단계: 배경 & 미디어] ---
-      ctx.fillStyle = '#050505';
+      // --- [1단계: 태그 기반 배경 스타일링] ---
+      let isDarkMood = state.tags.has('cyber') || state.tags.has('ruin') || state.tags.has('hate') || state.tags.has('obsess') || state.tags.has('apocalypse') || state.tags.has('wuxia');
+      let isDiaryMood = state.tags.has('daily') || state.tags.has('sweet') || state.tags.has('friendship');
+      
+      ctx.fillStyle = isDarkMood ? '#050505' : (isDiaryMood ? '#fff0f5' : '#111');
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // 배경 미디어 (사진/GIF)
       if (state.bgMedia) {
-        let src;
-        if (state.bgMedia.isGif) {
-          const frameIdx = Math.floor(prog * state.bgMedia.frames.length * 2) % state.bgMedia.frames.length;
-          src = state.bgMedia.frames[frameIdx];
-        } else {
-          src = state.bgMedia.img;
-        }
+        let src = state.bgMedia.isGif ? state.bgMedia.frames[Math.floor(prog * state.bgMedia.frames.length * 2) % state.bgMedia.frames.length] : state.bgMedia.img;
         const scale = Math.max(canvas.width / src.width, canvas.height / src.height);
         const w = src.width * scale, h = src.height * scale;
         ctx.drawImage(src, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
       } else {
-        ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
-        for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
-        for(let i=0; i<canvas.height; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
+        // 배경 패턴
+        if (isDiaryMood) {
+          // 귀여운 핑크색 모눈종이 패턴
+          ctx.strokeStyle = 'rgba(255, 182, 193, 0.5)'; ctx.lineWidth = 1;
+          for(let i=0; i<canvas.width; i+=30) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
+          for(let i=0; i<canvas.height; i+=30) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
+        } else {
+          ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+          for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
+          for(let i=0; i<canvas.height; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
+        }
       }
 
-      // --- [2단계: 어둡기 처리 (테마별 무드)] ---
-      if (state.tags.has('cyber')) { ctx.fillStyle = 'rgba(5,0,10,0.4)'; ctx.fillRect(0,0,canvas.width,canvas.height); }
-      if (state.tags.has('wuxia')) { ctx.fillStyle = 'rgba(20,10,0,0.5)'; ctx.fillRect(0,0,canvas.width,canvas.height); } 
+      // 무드 필터 (어둡게 하거나, 핏빛 처리)
+      if (state.tags.has('ruin') || state.tags.has('hate') || state.tags.has('obsess')) {
+        ctx.fillStyle = 'rgba(50,0,0,0.4)'; // 붉은 핏빛 필터
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+      } else if (isDarkMood) {
+        ctx.fillStyle = 'rgba(5,0,10,0.4)'; 
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+      }
 
-      // --- [3단계: 위젯 렌더링] ---
+      // --- [2단계: 위젯 렌더링] ---
       const activeWidgets = getActiveWidgets();
       
       renderOrder.forEach(key => {
@@ -290,46 +376,78 @@
         ctx.save();
 
         switch(key) {
-          // ⭐ [공통 위젯] 시나리오 제목 (Session Card Title) ⭐
+          // ⭐ 시나리오 제목
           case 'titleBox':
             ctx.font = `bold 75px "${state.titleFont}"`;
             ctx.textAlign = 'left';
-            ctx.textBaseline = 'top'; // 바운딩 박스(드래그) 계산을 쉽게 하기 위해 top 정렬
-            
-            // 글자 길이에 맞춰 박스(위젯)의 넓이를 동기화 (글이 길어져도 잡고 끌 수 있음)
-            const textWidth = ctx.measureText(state.title).width;
-            it.w = textWidth;
+            ctx.textBaseline = 'top'; 
+            it.w = ctx.measureText(state.title).width;
             it.h = 90; 
-
-            // 배경이 밝아도 제목이 잘 보이도록 그림자 세팅 (세션카드 국룰)
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-            ctx.shadowBlur = 12;
-            ctx.shadowOffsetX = 3;
-            ctx.shadowOffsetY = 3;
-            
-            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = isDiaryMood ? 'rgba(255, 182, 193, 0.8)' : 'rgba(0, 0, 0, 0.8)';
+            ctx.shadowBlur = 10; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3;
+            ctx.fillStyle = isDiaryMood ? '#333' : '#ffffff'; // 다꾸면 검은글씨, 다크면 흰글씨
+            if(state.tags.has('ruin')) ctx.fillStyle = '#ff4d4d'; // 피폐면 붉은 글씨
             ctx.fillText(state.title, it.x, it.y);
-            
-            // 그림자 초기화
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
+            ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
             break;
 
-          // 💻 사이버펑크: 콘솔창
+          // 📝 다이어리: 폴라로이드
+          case 'polaroid':
+            ctx.translate(it.x + it.w/2, it.y + it.h/2);
+            ctx.rotate(5 * Math.PI / 180); // 살짝 삐딱하게
+            ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 15; ctx.shadowOffsetY = 5;
+            
+            // 폴라로이드 흰색 프레임
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(-it.w/2, -it.h/2, it.w, it.h);
+            ctx.shadowBlur = 0; // 그림자 초기화
+
+            // 안쪽 사진 영역 (투명하게 파내거나, 검은색 칠)
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(-it.w/2 + 15, -it.h/2 + 15, it.w - 30, it.h - 80);
+            
+            // 이름 적기
+            ctx.fillStyle = '#333'; ctx.font = 'bold 20px "Nanum Pen Script"'; ctx.textAlign = 'center';
+            ctx.fillText(`♥ ${state.nameA} & ${state.nameB}`, 0, it.h/2 - 25);
+            break;
+
+          // 📝 다이어리: 마스킹 테이프
+          case 'tape1':
+          case 'tape2':
+            ctx.translate(it.x + it.w/2, it.y + it.h/2);
+            ctx.rotate((key === 'tape1' ? -10 : 15) * Math.PI / 180);
+            ctx.fillStyle = 'rgba(253, 224, 71, 0.8)'; // 노란 반투명 테이프
+            ctx.fillRect(-it.w/2, -it.h/2, it.w, it.h);
+            // 체크무늬 디테일
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+            for(let i=-it.w/2; i<it.w/2; i+=10) { ctx.beginPath(); ctx.moveTo(i, -it.h/2); ctx.lineTo(i, it.h/2); ctx.stroke(); }
+            break;
+
+          // ⚠️ 피폐/집착: 경고창
+          case 'warningBox':
+            const isBlink = Math.sin(prog * Math.PI * 8) > 0;
+            ctx.fillStyle = isBlink ? '#ef4444' : 'rgba(20, 0, 0, 0.9)';
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2;
+            ctx.fillRect(it.x, it.y, it.w, it.h); ctx.strokeRect(it.x, it.y, it.w, it.h);
+            ctx.fillStyle = isBlink ? '#ffffff' : '#ef4444'; ctx.font = 'bold 16px "Share Tech Mono"';
+            ctx.fillText('! DANGER_DETECTED', it.x + 16, it.y + 24);
+            ctx.fillStyle = '#ffffff'; ctx.font = '14px "Noto Sans KR"';
+            ctx.fillText('접근을 경고합니다.', it.x + 16, it.y + 45);
+            break;
+
+          // 💻 사이버: 콘솔
           case 'console':
             ctx.fillStyle = 'rgba(0,0,5,0.8)'; ctx.fillRect(it.x, it.y, it.w, it.h);
-            ctx.strokeStyle = '#ff0055'; ctx.strokeRect(it.x, it.y, it.w, it.h);
-            ctx.fillStyle = '#ff0055'; ctx.fillRect(it.x, it.y, it.w, 20);
-            ctx.fillStyle = '#fff'; ctx.font = 'bold 12px "Share Tech Mono"';
+            ctx.strokeStyle = '#00ffcc'; ctx.strokeRect(it.x, it.y, it.w, it.h);
+            ctx.fillStyle = '#00ffcc'; ctx.fillRect(it.x, it.y, it.w, 20);
+            ctx.fillStyle = '#000'; ctx.font = 'bold 12px "Share Tech Mono"';
             ctx.fillText('root@dopa:~#', it.x + 5, it.y + 14);
-            ctx.fillStyle = '#00ffcc'; ctx.font = '14px "Noto Sans KR"';
+            ctx.fillStyle = '#fff'; ctx.font = '14px "Noto Sans KR"';
             ctx.fillText(`> USER_A: ${state.nameA}`, it.x + 10, it.y + 50);
             ctx.fillText(`> USER_B: ${state.nameB}`, it.x + 10, it.y + 80);
-            if (prog % 0.1 > 0.05) ctx.fillRect(it.x + 10, it.y + 110, 10, 15);
+            if (prog % 0.1 > 0.05) { ctx.fillStyle='#00ffcc'; ctx.fillRect(it.x + 10, it.y + 110, 10, 15); }
             break;
             
-          // 💻 사이버펑크: 바코드
           case 'barcode':
             ctx.fillStyle = '#fff'; ctx.fillRect(it.x, it.y, it.w, it.h);
             ctx.fillStyle = '#000';
@@ -340,7 +458,7 @@
             ctx.fillText('DPA-OVERRIDE', it.x + it.w/2, it.y + 60);
             break;
 
-          // 📷 디카: AF 포커스
+          // 📷 디카
           case 'afBox':
             ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
             ctx.globalAlpha = Math.sin(prog * Math.PI * 4) * 0.3 + 0.7;
@@ -348,20 +466,18 @@
             ctx.beginPath(); ctx.moveTo(it.x+it.w-15, it.y); ctx.lineTo(it.x+it.w, it.y); ctx.lineTo(it.x+it.w, it.y+15); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(it.x, it.y+it.h-15); ctx.lineTo(it.x, it.y+it.h); ctx.lineTo(it.x+15, it.y+it.h); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(it.x+it.w-15, it.y+it.h); ctx.lineTo(it.x+it.w, it.y+it.h); ctx.lineTo(it.x+it.w, it.y+it.h-15); ctx.stroke();
-            const cx = it.x + it.w/2, cy = it.y + it.h/2;
-            ctx.beginPath(); ctx.moveTo(cx-5, cy); ctx.lineTo(cx+5, cy); ctx.moveTo(cx, cy-5); ctx.lineTo(cx, cy+5); ctx.stroke();
+            const cx2 = it.x + it.w/2, cy2 = it.y + it.h/2;
+            ctx.beginPath(); ctx.moveTo(cx2-5, cy2); ctx.lineTo(cx2+5, cy2); ctx.moveTo(cx2, cy2-5); ctx.lineTo(cx2, cy2+5); ctx.stroke();
             break;
             
-          // 📷 디카: 날짜
           case 'dateBox':
             ctx.fillStyle = '#10b981'; ctx.font = 'bold 24px "Share Tech Mono"';
             ctx.fillText('2026.10.08 PM 11:24', it.x, it.y + 20);
             break;
 
-          // 🐉 무협/동양풍: 프레임
+          // 🐉 동양풍
           case 'wuxiaFrame':
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)'; 
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)'; ctx.lineWidth = 2;
             ctx.strokeRect(it.x, it.y, it.w, it.h);
             ctx.strokeRect(it.x + 10, it.y + 10, it.w - 20, it.h - 20);
             const corner = 30;
@@ -371,13 +487,11 @@
             ctx.fillRect(it.x + it.w - corner, it.y + it.h - corner, corner, corner);
             break;
 
-          // 🐉 무협/동양풍: 세로쓰기 이름
           case 'wuxiaText':
             ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(it.x, it.y, it.w, it.h);
             ctx.fillStyle = '#fff'; ctx.font = 'bold 28px "Gowun Batang"';
             ctx.textAlign = 'center';
-            const charsA = state.nameA.split('');
-            const charsB = state.nameB.split('');
+            const charsA = state.nameA.split(''); const charsB = state.nameB.split('');
             charsA.forEach((c, i) => ctx.fillText(c, it.x + 20, it.y + 40 + i*35));
             charsB.forEach((c, i) => ctx.fillText(c, it.x + 40, it.y + 150 + i*35));
             ctx.fillStyle = '#8b0000'; ctx.fillRect(it.x + 15, it.y + it.h - 40, 30, 30);
@@ -386,33 +500,33 @@
 
           // 💬 공통 대사창
           case 'quoteBox':
-            let qColor = '#fff'; let qFont = '24px "Noto Sans KR"'; let qBg = 'rgba(0,0,0,0.5)';
+            let qColor = isDiaryMood ? '#333' : '#fff'; 
+            let qFont = isDiaryMood ? '22px "Single Day"' : '24px "Noto Sans KR"'; 
+            let qBg = isDiaryMood ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.5)';
             if (state.tags.has('cyber')) { qColor = '#00ffcc'; qFont = '20px "Share Tech Mono"'; qBg = 'rgba(0,5,20,0.8)'; }
             if (state.tags.has('wuxia')) { qColor = '#d4af37'; qFont = '28px "Nanum Myeongjo"'; qBg = 'transparent'; }
-            
+            if (state.tags.has('ruin')) { qColor = '#ff4d4d'; }
+
             ctx.fillStyle = qBg;
-            ctx.fillRect(it.x, it.y, it.w, it.h);
+            if(isDiaryMood) { ctx.beginPath(); ctx.roundRect(it.x, it.y, it.w, it.h, 10); ctx.fill(); }
+            else { ctx.fillRect(it.x, it.y, it.w, it.h); }
+            
             ctx.fillStyle = qColor; ctx.font = qFont;
-            ctx.textAlign = 'left';
-            ctx.fillText(`"${state.quote}"`, it.x + 10, it.y + 35);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText(`"${state.quote}"`, it.x + 15, it.y + it.h/2);
             break;
         }
 
         if (draggingItem === key && !isExporting) {
           ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
-          // textBaseline='top' 을 사용한 titleBox는 위치가 약간 다름
-          if(key === 'titleBox') {
-            ctx.strokeRect(it.x - 2, it.y - 2, it.w + 4, it.h + 4);
-          } else {
-            ctx.strokeRect(it.x - 2, it.y - 2, it.w + 4, it.h + 4);
-          }
+          ctx.strokeRect(it.x-2, it.y-2, it.w+4, it.h+4);
         }
         ctx.restore();
       });
     }
 
     // ==========================================
-    // 6. UI 이벤트 (태그, 텍스트 입력, 미디어 처리)
+    // 6. UI 이벤트
     // ==========================================
     document.querySelectorAll('.tag-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -424,8 +538,7 @@
           state.tags.add(tag);
           btn.classList.add('active');
         }
-        const activeWidgets = getActiveWidgets();
-        renderOrder = [...new Set([...renderOrder, ...activeWidgets])]; 
+        renderOrder = [...new Set([...renderOrder, ...getActiveWidgets()])]; 
       });
     });
 
@@ -436,15 +549,10 @@
       });
     });
     
-    // ⭐ 타이틀 폰트 변경 이벤트
-    document.getElementById('valTitleFont').addEventListener('change', e => {
-      state.titleFont = e.target.value;
-    });
+    document.getElementById('valTitleFont').addEventListener('change', e => { state.titleFont = e.target.value; });
+    document.getElementById('btnReset').addEventListener('click', () => { widgets = JSON.parse(JSON.stringify(defaultWidgets)); });
 
-    document.getElementById('btnReset').addEventListener('click', () => {
-      widgets = JSON.parse(JSON.stringify(defaultWidgets));
-    });
-
+    // 미디어 업로드
     document.getElementById('bgInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -480,15 +588,9 @@
 
     function startLoop() {
       if(previewTimer) clearInterval(previewTimer);
-      previewTimer = setInterval(() => {
-        if (!isExporting) { animProgress = (animProgress + 0.007) % 1; draw(animProgress); }
-      }, 30);
+      previewTimer = setInterval(() => { if (!isExporting) { animProgress = (animProgress + 0.007) % 1; draw(animProgress); } }, 30);
     }
-
-    // 폰트 로드 완료 후 렌더링 시작 (글자 팝인 방지)
-    document.fonts.ready.then(() => {
-      startLoop();
-    });
+    document.fonts.ready.then(() => startLoop());
 
     // ==========================================
     // 7. MP4 / GIF 고화질 내보내기 
@@ -498,26 +600,21 @@
     const resultArea = document.getElementById('resultArea');
 
     document.getElementById('btnExportMP4').addEventListener('click', () => {
-      isExporting = true; bar.classList.remove('hidden'); resultArea.classList.add('hidden');
-      draw(0.0);
-      
+      isExporting = true; bar.classList.remove('hidden'); resultArea.classList.add('hidden'); draw(0.0);
       const stream = canvas.captureStream(30);
       let mimeType = 'video/mp4';
       if (!MediaRecorder.isTypeSupported('video/mp4')) mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
-      
       let recorder;
       try { recorder = new MediaRecorder(stream, { mimeType }); } catch (e) { recorder = new MediaRecorder(stream); }
       const chunks = [];
       recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
-      
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: recorder.mimeType || 'video/mp4' });
         const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `DOPA_CARD_${Date.now()}.mp4`; link.click();
         isExporting = false; bar.classList.add('hidden'); resultArea.classList.remove('hidden');
       };
-
       recorder.start();
-      let currentFrame = 0; const totalSteps = 180; // 6초
+      let currentFrame = 0; const totalSteps = 180;
       const stepInterval = setInterval(() => {
         draw(currentFrame / totalSteps); currentFrame++;
         fill.style.width = `${Math.min(100, (currentFrame / totalSteps) * 100)}%`;
@@ -530,7 +627,6 @@
       const frames = []; const totalFrames = 20;
       for (let i = 0; i < totalFrames; i++) { draw(i / totalFrames); frames.push(canvas.toDataURL('image/png')); }
       fill.style.width = '50%';
-      
       gifshot.createGIF({ images: frames, gifWidth: 960, gifHeight: 540, interval: 0.25, numWorkers: 2 }, function(obj) {
         isExporting = false; bar.classList.add('hidden');
         if (!obj.error) {
