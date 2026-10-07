@@ -3,142 +3,118 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DOPA 세션카드 메이커 (정석 완벽판)</title>
+  <title>DOPA 템플릿 메이커 (배경+자동완성)</title>
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
-  <!-- 폰트 로드 -->
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;700;900&family=Share+Tech+Mono&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+  <!-- 테마용 폰트 -->
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;700;900&family=Share+Tech+Mono&family=Nanum+Myeongjo:wght@700;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
   <style>
     body { font-family: 'Noto Sans KR', sans-serif; background-color: #09090b; color: #fff; }
     ::-webkit-scrollbar { display: none; }
-    .canvas-wrapper { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 8px; border: 1px solid #27272a; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .canvas-wrapper { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 12px; border: 1px solid #27272a; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     canvas { display: block; }
     
-    /* 플로팅 툴바 */
-    .control-toolbar { display: none; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(24, 24, 27, 0.95); padding: 8px; border-radius: 12px; gap: 8px; z-index: 100; border: 1px solid #3f3f46; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    .control-btn { background: #27272a; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .control-btn:hover { background: #3f3f46; }
-    .control-btn.delete { background: #e11d48; }
-    
-    /* 하단 탭 */
-    .tab-btn { padding: 12px 0; border-bottom: 2px solid transparent; color: #71717a; font-weight: bold; font-size: 14px; transition: 0.2s; text-align: center; }
-    .tab-btn.active { border-bottom-color: #f43f5e; color: #f43f5e; }
-    .tab-content { display: none; padding-top: 16px; }
-    .tab-content.active { display: block; }
+    .theme-btn { padding: 12px; border-radius: 12px; border: 1px solid #27272a; background: #18181b; color: #a1a1aa; font-weight: bold; font-size: 12px; text-align: center; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+    .theme-btn.active { border-color: #f43f5e; background: #f43f5e20; color: #f43f5e; }
 
-    /* 입력창 */
     .input-group label { display: block; font-size: 11px; color: #a1a1aa; font-weight: bold; margin-bottom: 4px; }
-    .input-box { width: 100%; background: #18181b; border: 1px solid #3f3f46; color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 13px; outline: none; transition: 0.2s; }
+    .input-box { width: 100%; background: #18181b; border: 1px solid #3f3f46; color: #fff; padding: 12px; border-radius: 8px; font-size: 13px; outline: none; transition: 0.2s; }
     .input-box:focus { border-color: #f43f5e; }
-
-    .asset-item { background: #18181b; border: 1px solid #27272a; border-radius: 8px; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 10px; transition: 0.2s; }
-    .asset-item:hover { border-color: #f43f5e; }
-    .asset-item svg { width: 80%; height: 80%; }
   </style>
 </head>
 <body class="pb-10">
 
-  <main class="max-w-xl mx-auto p-4 space-y-4">
-    <!-- 1. 캔버스 -->
-    <div class="canvas-wrapper" id="canvasWrapper">
-      <canvas id="mainCanvas"></canvas>
-      <div class="control-toolbar" id="controlToolbar">
-        <button class="control-btn" onclick="moveLayer('up')">🔼 위로</button>
-        <button class="control-btn" onclick="moveLayer('down')">🔽 아래로</button>
-        <button class="control-btn delete" onclick="deleteObject()">🗑️ 삭제</button>
+  <!-- 상단 헤더 -->
+  <header class="p-4 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-[#09090b]/90 backdrop-blur z-50">
+    <div class="font-black tracking-widest text-lg text-rose-500">DOPA</div>
+    <div class="text-[10px] text-zinc-500 font-mono border border-zinc-700 px-2 py-1 rounded">TEMPLATE MAKER</div>
+  </header>
+
+  <main class="max-w-md mx-auto p-4 space-y-6">
+    
+    <!-- 1. 미리보기 캔버스 (뷰파인더) -->
+    <div>
+      <div class="flex justify-between items-end mb-2">
+        <span class="text-sm font-bold text-zinc-300">PREVIEW</span>
+        <span class="text-[10px] text-emerald-400 font-mono">드래그하여 배경 위치 조절</span>
+      </div>
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <canvas id="mainCanvas"></canvas>
       </div>
     </div>
 
-    <!-- 2. 하단 메뉴 -->
-    <div class="bg-zinc-900 rounded-xl border border-zinc-800 p-4 shadow-xl">
-      <div class="grid grid-cols-4 border-b border-zinc-800">
-        <button class="tab-btn active" data-tab="tab-text">📝 텍스트</button>
-        <button class="tab-btn" data-tab="tab-media">🖼️ 이미지</button>
-        <button class="tab-btn" data-tab="tab-frame">🎞️ 프레임</button>
-        <button class="tab-btn" data-tab="tab-export">💾 저장</button>
+    <!-- 2. 테마 선택 -->
+    <div>
+      <span class="text-sm font-bold text-zinc-300 block mb-3">1. STYLE (장르 선택)</span>
+      <div class="grid grid-cols-3 gap-2">
+        <button class="theme-btn active" data-theme="secret">🕵️ 기밀문서</button>
+        <button class="theme-btn" data-theme="digicam">📷 디카/HUD</button>
+        <button class="theme-btn" data-theme="romance">💗 로맨스</button>
+        <button class="theme-btn" data-theme="royal">🏰 로판</button>
+        <button class="theme-btn" data-theme="insta">📱 인스타그램</button>
       </div>
-
-      <!-- [텍스트 탭] -->
-      <div class="tab-content active space-y-4" id="tab-text">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="input-group col-span-2">
-            <label>시나리오 제목 (Title)</label>
-            <div class="flex gap-2">
-              <input type="text" id="valTitle" class="input-box" placeholder="예: 애정은 병열, 여름의 끝자락">
-              <button onclick="addText('title')" class="bg-rose-500 hover:bg-rose-600 text-white px-4 rounded-lg text-xs font-bold whitespace-nowrap">추가</button>
-            </div>
-          </div>
-          
-          <div class="input-group">
-            <label>캐릭터 이름 (KPC / PC)</label>
-            <div class="flex gap-2">
-              <input type="text" id="valName" class="input-box" placeholder="A × B">
-              <button onclick="addText('name')" class="bg-zinc-700 hover:bg-zinc-600 text-white px-3 rounded-lg text-xs font-bold whitespace-nowrap">추가</button>
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label>캐치프레이즈 / 대사</label>
-            <div class="flex gap-2">
-              <input type="text" id="valQuote" class="input-box" placeholder="우리가 다시 만날 수 있을까?">
-              <button onclick="addText('quote')" class="bg-zinc-700 hover:bg-zinc-600 text-white px-3 rounded-lg text-xs font-bold whitespace-nowrap">추가</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 텍스트 스타일 변경 (선택된 텍스트가 있을 때만 활성화) -->
-        <div class="border-t border-zinc-800 pt-3 mt-2 grid grid-cols-2 gap-3">
-          <div class="input-group">
-            <label>폰트 변경 (선택 후 클릭)</label>
-            <select id="fontSelect" class="input-box cursor-pointer" onchange="changeTextStyle('fontFamily', this.value)">
-              <option value="Noto Sans KR">노토 산스 (고딕)</option>
-              <option value="Nanum Myeongjo">나눔 명조 (명조)</option>
-              <option value="Gowun Batang">고운 바탕 (감성)</option>
-              <option value="Share Tech Mono">Share Tech (사이버)</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label>글자 색상</label>
-            <input type="color" id="textColor" class="w-full h-9 rounded-lg border-0 cursor-pointer bg-transparent" value="#ffffff" onchange="changeTextStyle('fill', this.value)">
-          </div>
-        </div>
-      </div>
-
-      <!-- [이미지 탭] -->
-      <div class="tab-content" id="tab-media">
-        <label class="bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold p-4 rounded-xl text-center block cursor-pointer transition">
-          📸 내 캐릭터/배경 일러스트 업로드
-          <input type="file" id="imageUpload" accept="image/*" class="hidden">
-        </label>
-        <p class="text-xs text-zinc-500 text-center mt-3">업로드한 이미지는 캔버스에 추가되며, 크기를 조절해 배경으로 쓸 수 있습니다.</p>
-      </div>
-
-      <!-- [프레임 탭] -->
-      <div class="tab-content" id="tab-frame">
-        <p class="text-xs text-zinc-500 mb-3">터치하면 캔버스 중앙에 추가됩니다. (추가 후 사진 위로 올리세요)</p>
-        <div class="grid grid-cols-3 gap-3" id="frameGrid">
-          <!-- JS에서 프레임 자동 렌더링 -->
-        </div>
-      </div>
-
-      <!-- [저장 탭] -->
-      <div class="tab-content" id="tab-export">
-        <button id="btnDownload" class="bg-white text-black text-sm font-bold p-4 rounded-xl text-center block w-full hover:bg-zinc-200 transition">
-          💾 고화질 PNG 저장 (1280x720)
-        </button>
-      </div>
-
     </div>
+
+    <!-- 3. 정보 및 배경 입력 -->
+    <div class="space-y-4 bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+      <span class="text-sm font-bold text-zinc-300 block mb-2">2. INFORMATION (정보 입력)</span>
+      
+      <label class="bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold p-3 rounded-lg text-center block cursor-pointer transition mb-4">
+        📸 배경 일러스트 업로드
+        <input type="file" id="imageUpload" accept="image/*" class="hidden">
+      </label>
+
+      <div class="input-group">
+        <label>시나리오 제목 (Title)</label>
+        <input type="text" id="valTitle" class="input-box" value="애정은 병열" placeholder="시나리오 제목">
+      </div>
+      
+      <div class="grid grid-cols-2 gap-3">
+        <div class="input-group">
+          <label>캐릭터 A</label>
+          <input type="text" id="valNameA" class="input-box" value="윤세라" placeholder="이름 1">
+        </div>
+        <div class="input-group">
+          <label>캐릭터 B</label>
+          <input type="text" id="valNameB" class="input-box" value="백우진" placeholder="이름 2">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>한줄 대사 / 캐치프레이즈</label>
+        <input type="text" id="valQuote" class="input-box" value="우리가 다시 만날 수 있을까?" placeholder="명대사 입력">
+      </div>
+    </div>
+
+    <!-- 4. 내보내기 -->
+    <button id="btnDownload" class="bg-white hover:bg-zinc-200 text-black font-bold py-4 rounded-xl text-sm transition active:scale-95 w-full">
+      💾 완성본 저장 (1280x720)
+    </button>
+
   </main>
 
   <script>
-    // 1. 캔버스 세팅
+    // ==========================================
+    // 앱 상태 (State)
+    // ==========================================
+    const state = {
+      theme: 'secret',
+      title: '애정은 병열',
+      nameA: '윤세라',
+      nameB: '백우진',
+      quote: '우리가 다시 만날 수 있을까?',
+      bgImageObj: null // 업로드된 배경 이미지
+    };
+
+    // ==========================================
+    // 캔버스 초기화
+    // ==========================================
     const BASE_W = 1280;
     const BASE_H = 720;
-    const canvas = new fabric.Canvas('mainCanvas', { preserveObjectStacking: true, backgroundColor: '#09090b' });
+    const canvas = new fabric.Canvas('mainCanvas', { width: BASE_W, height: BASE_H, selection: false });
 
     function resizeCanvas() {
       const wrapper = document.getElementById('canvasWrapper');
@@ -149,137 +125,149 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // 2. 탭 UI
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-      };
-    });
+    // ==========================================
+    // 자동 생성 렌더링 엔진 (핵심)
+    // ==========================================
+    function renderTemplate() {
+      canvas.clear();
+      canvas.backgroundColor = '#111';
 
-    // 3. 텍스트 제어 로직 (시나리오 제목, 이름, 대사)
-    window.addText = (type) => {
-      let textVal = '';
-      let fontSize = 40;
-      let fontFamily = 'Noto Sans KR';
-      let fontWeight = 'normal';
-
-      if (type === 'title') {
-        textVal = document.getElementById('valTitle').value || '시나리오 제목';
-        fontSize = 80; fontWeight = '900';
-      } else if (type === 'name') {
-        textVal = document.getElementById('valName').value || '캐릭터 A x B';
-        fontSize = 50; fontFamily = 'Nanum Myeongjo';
-      } else if (type === 'quote') {
-        textVal = document.getElementById('valQuote').value || '캐치프레이즈를 입력하세요';
-        fontSize = 30; fontFamily = 'Gowun Batang';
+      // 1. 배경 이미지 렌더링 (가장 먼저 깔림, 선택/이동 가능)
+      if (state.bgImageObj) {
+        canvas.add(state.bgImageObj);
       }
 
-      const textObj = new fabric.IText(textVal, {
-        left: BASE_W / 2, top: BASE_H / 2,
-        originX: 'center', originY: 'center',
-        fontFamily: fontFamily, fontSize: fontSize,
-        fontWeight: fontWeight, fill: '#ffffff',
-        shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.8)', blur: 4, offsetX: 2, offsetY: 2 }) // 기본 그림자
-      });
+      // 2. 테마별 오버레이(프레임+텍스트) 렌더링
+      const cx = BASE_W / 2;
+      const cy = BASE_H / 2;
+      const commonTextOpts = { selectable: false, evented: false }; // 사용자가 건드리지 못하게 고정!
 
-      canvas.add(textObj);
-      canvas.setActiveObject(textObj);
-    };
+      switch (state.theme) {
+        // 🕵️ 기밀문서 (캡처 이미지 기반)
+        case 'secret':
+          // 빨간 점선 테두리
+          canvas.add(new fabric.Rect({ left: 40, top: 40, width: 1200, height: 640, fill: 'transparent', stroke: '#e11d48', strokeWidth: 6, strokeDashArray: [15, 15], selectable: false, evented: false }));
+          canvas.add(new fabric.Text('TOP SECRET // CONFIDENTIAL', { left: 80, top: 80, fontFamily: 'Share Tech Mono', fontSize: 35, fontWeight: 'bold', fill: '#e11d48', ...commonTextOpts }));
+          
+          canvas.add(new fabric.Text(state.title, { left: 80, top: 160, fontFamily: 'Noto Sans KR', fontSize: 80, fontWeight: '900', fill: '#fff', shadow: new fabric.Shadow({ color: '#000', blur: 10 }), ...commonTextOpts }));
+          canvas.add(new fabric.Text(`SUBJECT: ${state.nameA} x ${state.nameB}`, { left: 85, top: 270, fontFamily: 'Share Tech Mono', fontSize: 24, fill: '#fca5a5', backgroundColor: 'rgba(0,0,0,0.5)', ...commonTextOpts }));
+          canvas.add(new fabric.Text(`"${state.quote}"`, { left: 85, top: 600, fontFamily: 'Gowun Batang', fontSize: 28, fill: '#fff', shadow: new fabric.Shadow({ color: '#000', blur: 4 }), ...commonTextOpts }));
+          break;
 
-    window.changeTextStyle = (key, value) => {
-      const obj = canvas.getActiveObject();
-      if (obj && obj.type === 'i-text') {
-        obj.set(key, value);
-        canvas.renderAll();
+        // 📷 디카/HUD (기존 코드 기반)
+        case 'digicam':
+          // 디카 가이드라인
+          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1100, height: 600, fill: 'transparent', stroke: 'rgba(255,255,255,0.5)', strokeWidth: 2, ...commonTextOpts }));
+          canvas.add(new fabric.Text('● REC', { left: 100, top: 80, fontFamily: 'Share Tech Mono', fontSize: 30, fill: '#f43f5e', ...commonTextOpts }));
+          canvas.add(new fabric.Text('100% 🔋', { left: BASE_W - 220, top: 80, fontFamily: 'Share Tech Mono', fontSize: 24, fill: '#fff', ...commonTextOpts }));
+          
+          canvas.add(new fabric.Text(state.title, { left: cx, top: 150, originX: 'center', fontFamily: 'Noto Sans KR', fontSize: 60, fontWeight: '900', fill: '#fff', shadow: new fabric.Shadow({ color: '#000', blur: 10 }), ...commonTextOpts }));
+          canvas.add(new fabric.Text(`${state.nameA} - ${state.nameB}`, { left: cx, top: 230, originX: 'center', fontFamily: 'Noto Sans KR', fontSize: 30, fill: '#a1a1aa', ...commonTextOpts }));
+          
+          canvas.add(new fabric.Text(`[ ${state.quote} ]`, { left: cx, top: 600, originX: 'center', fontFamily: 'Gowun Dodum', fontSize: 28, fill: '#fff', backgroundColor: 'rgba(0,0,0,0.5)', ...commonTextOpts }));
+          break;
+
+        // 💗 로맨스
+        case 'romance':
+          canvas.add(new fabric.Rect({ left: 0, top: 0, width: BASE_W, height: BASE_H, fill: 'rgba(0,0,0,0.3)', ...commonTextOpts })); // 살짝 어둡게
+          canvas.add(new fabric.Text(state.title, { left: cx, top: cy - 100, originX: 'center', originY: 'center', fontFamily: 'Nanum Myeongjo', fontSize: 100, fontWeight: '800', fill: '#fff', ...commonTextOpts }));
+          canvas.add(new fabric.Text(`${state.nameA} x ${state.nameB}`, { left: cx, top: cy + 20, originX: 'center', originY: 'center', fontFamily: 'Gowun Batang', fontSize: 35, fill: '#fda4af', ...commonTextOpts }));
+          canvas.add(new fabric.Text(state.quote, { left: cx, top: BASE_H - 120, originX: 'center', fontFamily: 'Gowun Batang', fontSize: 24, fill: '#fff', ...commonTextOpts }));
+          break;
+
+        // 🏰 로판
+        case 'royal':
+          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1200, height: 640, fill: 'transparent', stroke: '#fbbf24', strokeWidth: 3, ...commonTextOpts }));
+          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1180, height: 620, fill: 'transparent', stroke: '#fbbf24', strokeWidth: 1, ...commonTextOpts }));
+          
+          canvas.add(new fabric.Text(state.title, { left: cx, top: 150, originX: 'center', fontFamily: 'Cinzel', fontSize: 80, fontWeight: 'bold', fill: '#fbbf24', ...commonTextOpts }));
+          canvas.add(new fabric.Text(`${state.nameA} ✦ ${state.nameB}`, { left: cx, top: 250, originX: 'center', fontFamily: 'Nanum Myeongjo', fontSize: 40, fill: '#fff', ...commonTextOpts }));
+          canvas.add(new fabric.Text(`"${state.quote}"`, { left: cx, top: 580, originX: 'center', fontFamily: 'Nanum Myeongjo', fontSize: 30, fontStyle: 'italic', fill: '#d4d4d8', ...commonTextOpts }));
+          break;
+
+        // 📱 인스타그램
+        case 'insta':
+          // 인스타 UI (하얀색 박스)
+          const instaBox = new fabric.Rect({ left: 80, top: cy, originY: 'center', width: 450, height: 600, fill: '#fff', rx: 20, ...commonTextOpts });
+          canvas.add(instaBox);
+          
+          // 상단 프로필 영역
+          canvas.add(new fabric.Circle({ left: 110, top: cy - 260, radius: 20, fill: '#e4e4e7', ...commonTextOpts }));
+          canvas.add(new fabric.Text('dopa_official', { left: 160, top: cy - 250, fontFamily: 'Noto Sans KR', fontSize: 16, fontWeight: 'bold', fill: '#000', ...commonTextOpts }));
+          
+          // 타이포
+          canvas.add(new fabric.Text(state.title, { left: 110, top: cy - 100, fontFamily: 'Noto Sans KR', fontSize: 50, fontWeight: '900', fill: '#000', ...commonTextOpts }));
+          canvas.add(new fabric.Text(`♥ ${state.nameA} & ${state.nameB}`, { left: 110, top: cy, fontFamily: 'Noto Sans KR', fontSize: 20, fontWeight: 'bold', fill: '#e11d48', ...commonTextOpts }));
+          
+          // 대사 (본문 영역)
+          canvas.add(new fabric.Text(state.quote, { left: 110, top: cy + 180, fontFamily: 'Gowun Batang', fontSize: 18, fill: '#333', ...commonTextOpts }));
+          break;
       }
-    };
+      
+      canvas.renderAll();
+    }
 
-    // 4. 이미지 업로드 로직 (단순하고 강력하게)
+    // ==========================================
+    // 배경 이미지 업로드 로직
+    // ==========================================
     document.getElementById('imageUpload').onchange = e => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = f => {
         fabric.Image.fromURL(f.target.result, img => {
-          // 화면의 80% 크기로 일단 맞춤
-          const targetScale = (BASE_W * 0.8) / img.width;
+          // 화면에 꽉 차게 스케일링
+          const targetScale = Math.max(BASE_W / img.width, BASE_H / img.height);
           img.set({
             scaleX: targetScale, scaleY: targetScale,
             left: BASE_W/2, top: BASE_H/2,
-            originX: 'center', originY: 'center'
+            originX: 'center', originY: 'center',
+            hasControls: false, // 크기 조절 박스 숨김 (드래그 이동만 가능)
+            hasBorders: false
           });
-          canvas.add(img);
-          img.sendToBack(); // 이미지는 기본적으로 배경쪽으로 보냄
-          canvas.setActiveObject(img);
+          state.bgImageObj = img;
+          renderTemplate();
         });
       };
       reader.readAsDataURL(file);
     };
 
-    // 5. 프레임 (기밀문서, 인스타그램 등)
-    const FRAMES = [
-      { id: 'secret', name: '기밀 문서', svg: `<svg viewBox="0 0 1280 720" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="40" width="1200" height="640" fill="none" stroke="#e11d48" stroke-width="6" stroke-dasharray="15 15"/><text x="80" y="120" font-size="45" font-weight="bold" fill="#e11d48" font-family="monospace">TOP SECRET // CONFIDENTIAL</text></svg>` },
-      { id: 'insta', name: '인스타그램', svg: `<svg viewBox="0 0 500 800" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect width="500" height="800" fill="#fff" rx="20" opacity="0.95"/><circle cx="50" cy="50" r="25" fill="#ddd"/><text x="90" y="55" font-size="16" font-family="sans-serif" font-weight="bold" fill="#000">dopa_official</text><rect x="0" y="90" width="500" height="500" fill="transparent" stroke="#eee" stroke-width="2"/><circle cx="30" cy="620" r="12" fill="none" stroke="#000" stroke-width="2"/><circle cx="75" cy="620" r="12" fill="none" stroke="#000" stroke-width="2"/><path d="M110,610 L130,620 L110,630 Z" fill="none" stroke="#000" stroke-width="2"/><rect x="450" y="608" width="20" height="24" fill="none" stroke="#000" stroke-width="2"/></svg>` },
-      { id: 'movie', name: '영화 비율', svg: `<svg viewBox="0 0 1280 720" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="1280" height="80" fill="#000"/><rect x="0" y="640" width="1280" height="80" fill="#000"/></svg>` }
-    ];
-
-    const frameGrid = document.getElementById('frameGrid');
-    FRAMES.forEach(f => {
-      const div = document.createElement('div');
-      div.className = 'asset-item';
-      div.innerHTML = `${f.svg}<span class="text-[10px] text-zinc-400 mt-2 font-bold">${f.name}</span>`;
-      div.onclick = () => {
-        fabric.loadSVGFromString(f.svg, (objs, opts) => {
-          const obj = fabric.util.groupSVGElements(objs, opts);
-          // 캔버스 크기에 딱 맞춤
-          obj.set({
-            scaleX: BASE_W / obj.width,
-            scaleY: (f.id==='insta') ? (BASE_H*0.9)/obj.height : BASE_H / obj.height,
-            left: BASE_W/2, top: BASE_H/2,
-            originX: 'center', originY: 'center'
-          });
-          canvas.add(obj);
-          obj.bringToFront(); // 프레임은 무조건 최상단으로
-          canvas.setActiveObject(obj);
-        });
-      };
-      frameGrid.appendChild(div);
+    // ==========================================
+    // 이벤트 리스너 연결
+    // ==========================================
+    // 텍스트 입력
+    const inputs = ['valTitle', 'valNameA', 'valNameB', 'valQuote'];
+    inputs.forEach(id => {
+      document.getElementById(id).addEventListener('input', (e) => {
+        const key = id.replace('val', '');
+        state[key.charAt(0).toLowerCase() + key.slice(1)] = e.target.value;
+        renderTemplate();
+      });
     });
 
-    // 6. 객체 제어 (선택 박스 & 레이어)
-    const toolbar = document.getElementById('controlToolbar');
+    // 테마 버튼
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.theme = btn.dataset.theme;
+        renderTemplate();
+      });
+    });
 
-    canvas.on('selection:created', e => toolbar.style.display = 'flex');
-    canvas.on('selection:updated', e => toolbar.style.display = 'flex');
-    canvas.on('selection:cleared', e => toolbar.style.display = 'none');
-
-    window.moveLayer = (dir) => {
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      if (dir === 'up') canvas.bringForward(obj);
-      if (dir === 'down') canvas.sendBackwards(obj);
-      canvas.renderAll();
-    };
-
-    window.deleteObject = () => {
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      canvas.remove(obj);
-      canvas.discardActiveObject();
-    };
-
-    // 7. 다운로드
+    // 다운로드
     document.getElementById('btnDownload').onclick = () => {
-      canvas.discardActiveObject();
+      canvas.discardActiveObject(); // 선택 해제
       canvas.renderAll();
       const link = document.createElement('a');
-      link.download = `DOPA_SESSION_${Date.now()}.png`;
+      link.download = `DOPA_CARD_${Date.now()}.png`;
       link.href = canvas.toDataURL({ format: 'png', quality: 1 });
       link.click();
     };
+
+    // 초기 렌더링
+    document.fonts.ready.then(() => renderTemplate());
+    setTimeout(renderTemplate, 500);
   </script>
 </body>
 </html>
