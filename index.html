@@ -3,143 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DOPA 세션 메이커 (Template Ver)</title>
-
-  <!-- Tailwind CSS & Fabric.js & Gifshot -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>DOPA 세션카드 메이커 (정석 완벽판)</title>
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- 테마별 폰트 팩 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;700;900&family=Share+Tech+Mono&family=Nanum+Myeongjo:wght@700&display=swap" rel="stylesheet">
+  <!-- 폰트 로드 -->
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;700;900&family=Share+Tech+Mono&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
 
   <style>
-    body { font-family: 'Noto Sans KR', sans-serif; background-color: #09090b; color: #fff; touch-action: manipulation; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #09090b; color: #fff; }
     ::-webkit-scrollbar { display: none; }
-    .canvas-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #27272a; position: relative; }
+    .canvas-wrapper { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 8px; border: 1px solid #27272a; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     canvas { display: block; }
     
-    /* 테마 버튼 스타일 */
-    .theme-btn { padding: 12px; border-radius: 12px; border: 1px solid #27272a; background: #18181b; color: #a1a1aa; font-weight: bold; font-size: 13px; text-align: center; cursor: pointer; transition: all 0.2s; }
-    .theme-btn.active { border-color: #f43f5e; background: #f43f5e20; color: #f43f5e; }
+    /* 플로팅 툴바 */
+    .control-toolbar { display: none; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(24, 24, 27, 0.95); padding: 8px; border-radius: 12px; gap: 8px; z-index: 100; border: 1px solid #3f3f46; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .control-btn { background: #27272a; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .control-btn:hover { background: #3f3f46; }
+    .control-btn.delete { background: #e11d48; }
+    
+    /* 하단 탭 */
+    .tab-btn { padding: 12px 0; border-bottom: 2px solid transparent; color: #71717a; font-weight: bold; font-size: 14px; transition: 0.2s; text-align: center; }
+    .tab-btn.active { border-bottom-color: #f43f5e; color: #f43f5e; }
+    .tab-content { display: none; padding-top: 16px; }
+    .tab-content.active { display: block; }
 
-    /* 커스텀 입력창 */
-    .input-box { background: #18181b; border: 1px solid #27272a; color: white; width: 100%; padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-top: 4px; outline: none; }
+    /* 입력창 */
+    .input-group label { display: block; font-size: 11px; color: #a1a1aa; font-weight: bold; margin-bottom: 4px; }
+    .input-box { width: 100%; background: #18181b; border: 1px solid #3f3f46; color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 13px; outline: none; transition: 0.2s; }
     .input-box:focus { border-color: #f43f5e; }
+
+    .asset-item { background: #18181b; border: 1px solid #27272a; border-radius: 8px; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 10px; transition: 0.2s; }
+    .asset-item:hover { border-color: #f43f5e; }
+    .asset-item svg { width: 80%; height: 80%; }
   </style>
 </head>
-<body class="pb-20">
+<body class="pb-10">
 
-  <!-- 헤더 -->
-  <header class="p-4 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-[#09090b]/90 backdrop-blur z-50">
-    <div class="font-black tracking-widest text-lg text-rose-500">DOPA</div>
-    <div class="text-xs text-zinc-500 font-mono">SESSION CARD MAKER</div>
-  </header>
-
-  <main class="max-w-md mx-auto p-4 space-y-6">
-    
-    <!-- 1. 16:9 미리보기 캔버스 -->
-    <div>
-      <div class="flex justify-between items-end mb-2">
-        <span class="text-sm font-bold text-zinc-300">PREVIEW</span>
-        <span class="text-[10px] text-zinc-500 font-mono">1280x720 HQ</span>
-      </div>
-      <div class="canvas-wrapper" id="canvasWrapper">
-        <canvas id="mainCanvas"></canvas>
-        
-        <!-- 로딩/추출 오버레이 -->
-        <div id="exportOverlay" class="absolute inset-0 bg-black/80 backdrop-blur-sm flex-col justify-center items-center hidden z-10">
-          <div class="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-          <p id="exportStatus" class="text-xs font-bold text-rose-400 font-mono tracking-widest">RENDERING...</p>
-        </div>
+  <main class="max-w-xl mx-auto p-4 space-y-4">
+    <!-- 1. 캔버스 -->
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <canvas id="mainCanvas"></canvas>
+      <div class="control-toolbar" id="controlToolbar">
+        <button class="control-btn" onclick="moveLayer('up')">🔼 위로</button>
+        <button class="control-btn" onclick="moveLayer('down')">🔽 아래로</button>
+        <button class="control-btn delete" onclick="deleteObject()">🗑️ 삭제</button>
       </div>
     </div>
 
-    <!-- 2. 테마 선택 -->
-    <div>
-      <span class="text-sm font-bold text-zinc-300 mb-2 block">1. STYLE (분위기)</span>
-      <div class="grid grid-cols-3 gap-2">
-        <button class="theme-btn active" data-theme="romance">💗 ROMANCE</button>
-        <button class="theme-btn" data-theme="mystery">🕵️ CASE FILE</button>
-        <button class="theme-btn" data-theme="royal">🏰 ROYAL</button>
-        <button class="theme-btn" data-theme="cyber">🖥️ CYBER</button>
-        <button class="theme-btn" data-theme="digicam">📷 DIGICAM</button>
-        <button class="theme-btn" data-theme="modern">🌃 MODERN</button>
+    <!-- 2. 하단 메뉴 -->
+    <div class="bg-zinc-900 rounded-xl border border-zinc-800 p-4 shadow-xl">
+      <div class="grid grid-cols-4 border-b border-zinc-800">
+        <button class="tab-btn active" data-tab="tab-text">📝 텍스트</button>
+        <button class="tab-btn" data-tab="tab-media">🖼️ 이미지</button>
+        <button class="tab-btn" data-tab="tab-frame">🎞️ 프레임</button>
+        <button class="tab-btn" data-tab="tab-export">💾 저장</button>
       </div>
+
+      <!-- [텍스트 탭] -->
+      <div class="tab-content active space-y-4" id="tab-text">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="input-group col-span-2">
+            <label>시나리오 제목 (Title)</label>
+            <div class="flex gap-2">
+              <input type="text" id="valTitle" class="input-box" placeholder="예: 애정은 병열, 여름의 끝자락">
+              <button onclick="addText('title')" class="bg-rose-500 hover:bg-rose-600 text-white px-4 rounded-lg text-xs font-bold whitespace-nowrap">추가</button>
+            </div>
+          </div>
+          
+          <div class="input-group">
+            <label>캐릭터 이름 (KPC / PC)</label>
+            <div class="flex gap-2">
+              <input type="text" id="valName" class="input-box" placeholder="A × B">
+              <button onclick="addText('name')" class="bg-zinc-700 hover:bg-zinc-600 text-white px-3 rounded-lg text-xs font-bold whitespace-nowrap">추가</button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>캐치프레이즈 / 대사</label>
+            <div class="flex gap-2">
+              <input type="text" id="valQuote" class="input-box" placeholder="우리가 다시 만날 수 있을까?">
+              <button onclick="addText('quote')" class="bg-zinc-700 hover:bg-zinc-600 text-white px-3 rounded-lg text-xs font-bold whitespace-nowrap">추가</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 텍스트 스타일 변경 (선택된 텍스트가 있을 때만 활성화) -->
+        <div class="border-t border-zinc-800 pt-3 mt-2 grid grid-cols-2 gap-3">
+          <div class="input-group">
+            <label>폰트 변경 (선택 후 클릭)</label>
+            <select id="fontSelect" class="input-box cursor-pointer" onchange="changeTextStyle('fontFamily', this.value)">
+              <option value="Noto Sans KR">노토 산스 (고딕)</option>
+              <option value="Nanum Myeongjo">나눔 명조 (명조)</option>
+              <option value="Gowun Batang">고운 바탕 (감성)</option>
+              <option value="Share Tech Mono">Share Tech (사이버)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>글자 색상</label>
+            <input type="color" id="textColor" class="w-full h-9 rounded-lg border-0 cursor-pointer bg-transparent" value="#ffffff" onchange="changeTextStyle('fill', this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- [이미지 탭] -->
+      <div class="tab-content" id="tab-media">
+        <label class="bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold p-4 rounded-xl text-center block cursor-pointer transition">
+          📸 내 캐릭터/배경 일러스트 업로드
+          <input type="file" id="imageUpload" accept="image/*" class="hidden">
+        </label>
+        <p class="text-xs text-zinc-500 text-center mt-3">업로드한 이미지는 캔버스에 추가되며, 크기를 조절해 배경으로 쓸 수 있습니다.</p>
+      </div>
+
+      <!-- [프레임 탭] -->
+      <div class="tab-content" id="tab-frame">
+        <p class="text-xs text-zinc-500 mb-3">터치하면 캔버스 중앙에 추가됩니다. (추가 후 사진 위로 올리세요)</p>
+        <div class="grid grid-cols-3 gap-3" id="frameGrid">
+          <!-- JS에서 프레임 자동 렌더링 -->
+        </div>
+      </div>
+
+      <!-- [저장 탭] -->
+      <div class="tab-content" id="tab-export">
+        <button id="btnDownload" class="bg-white text-black text-sm font-bold p-4 rounded-xl text-center block w-full hover:bg-zinc-200 transition">
+          💾 고화질 PNG 저장 (1280x720)
+        </button>
+      </div>
+
     </div>
-
-    <!-- 3. 정보 입력 -->
-    <div class="space-y-4 bg-zinc-900 p-4 rounded-xl border border-zinc-800">
-      <span class="text-sm font-bold text-zinc-300 block mb-2">2. INFORMATION (정보)</span>
-      
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs text-zinc-500 font-bold">CHARACTER A</label>
-          <input type="text" id="inputA" class="input-box" value="윤세라" placeholder="캐릭터 1">
-        </div>
-        <div>
-          <label class="text-xs text-zinc-500 font-bold">CHARACTER B</label>
-          <input type="text" id="inputB" class="input-box" value="백우진" placeholder="캐릭터 2">
-        </div>
-      </div>
-
-      <div>
-        <label class="text-xs text-zinc-500 font-bold">RELATION (관계)</label>
-        <input type="text" id="inputRel" class="input-box" value="혐관 / 파트너" placeholder="예: 소꿉친구, 라이벌">
-      </div>
-
-      <div>
-        <label class="text-xs text-zinc-500 font-bold">CATCHPHRASE (한줄 문구)</label>
-        <input type="text" id="inputQuote" class="input-box" value="우리가 다시 만날 수 있을까?" placeholder="상단/하단에 들어갈 문구">
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 pt-2">
-        <div>
-          <label class="text-xs text-zinc-500 font-bold">배경 색상</label>
-          <input type="color" id="colorBg" value="#111111" class="w-full h-10 border-0 rounded-lg cursor-pointer bg-zinc-800 mt-1">
-        </div>
-        <div>
-          <label class="text-xs text-zinc-500 font-bold">포인트 색상</label>
-          <input type="color" id="colorAcc" value="#f43f5e" class="w-full h-10 border-0 rounded-lg cursor-pointer bg-zinc-800 mt-1">
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. 내보내기 버튼 -->
-    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-zinc-800">
-      <button id="btnPng" class="bg-white hover:bg-zinc-200 text-black font-bold py-4 rounded-xl text-sm transition active:scale-95">
-        📸 PNG 이미지 저장
-      </button>
-      <button id="btnGif" class="bg-gradient-to-r from-rose-500 to-pink-500 hover:opacity-90 text-white font-bold py-4 rounded-xl text-sm transition active:scale-95">
-        ✨ 움직이는 GIF 저장
-      </button>
-    </div>
-
   </main>
 
   <script>
-    // ==========================================
-    // 앱 상태 관리 (State)
-    // ==========================================
-    const state = {
-      theme: 'romance',
-      charA: '윤세라',
-      charB: '백우진',
-      relation: '혐관 / 파트너',
-      quote: '우리가 다시 만날 수 있을까?',
-      bgColor: '#1a1a24',
-      accColor: '#f43f5e',
-      animFrame: 0 // GIF 애니메이션용 프레임 변수 (0.0 ~ 1.0)
-    };
-
-    // ==========================================
-    // Fabric.js 초기화
-    // ==========================================
+    // 1. 캔버스 세팅
     const BASE_W = 1280;
     const BASE_H = 720;
-    const canvas = new fabric.Canvas('mainCanvas', { width: BASE_W, height: BASE_H, selection: false });
+    const canvas = new fabric.Canvas('mainCanvas', { preserveObjectStacking: true, backgroundColor: '#09090b' });
 
     function resizeCanvas() {
       const wrapper = document.getElementById('canvasWrapper');
@@ -150,252 +149,137 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // ==========================================
-    // 템플릿 렌더링 엔진 (핵심)
-    // 외부 이미지 없이 100% 코드로만 디자인을 그림!
-    // ==========================================
-    function renderTemplate(animProgress = 0) {
-      canvas.clear();
-      
-      // 1. 기본 배경
-      canvas.backgroundColor = state.bgColor;
-
-      const cx = BASE_W / 2;
-      const cy = BASE_H / 2;
-
-      // 2. 테마별 드로잉 로직 분기
-      switch (state.theme) {
-        
-        // 🌸 [1. ROMANCE 테마]
-        case 'romance':
-          // 장식선
-          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1100, height: 600, fill: 'transparent', stroke: state.accColor, strokeWidth: 2, rx: 20 }));
-          
-          // 문구
-          canvas.add(new fabric.Text(`"${state.quote}"`, { left: cx, top: 180, originX: 'center', originY: 'center', fontFamily: 'Gowun Batang', fontSize: 32, fill: '#aaa' }));
-          
-          // 이름 A x B
-          canvas.add(new fabric.Text(state.charA, { left: cx - 250, top: cy + 30, originX: 'center', originY: 'center', fontFamily: 'Nanum Myeongjo', fontSize: 80, fontWeight: 'bold', fill: '#fff' }));
-          
-          // 뛰는 하트 (애니메이션 적용)
-          const heartScale = 1 + Math.sin(animProgress * Math.PI * 4) * 0.15;
-          canvas.add(new fabric.Text('♥', { left: cx, top: cy + 30, originX: 'center', originY: 'center', fontFamily: 'Arial', fontSize: 50, fill: state.accColor, scaleX: heartScale, scaleY: heartScale }));
-          
-          canvas.add(new fabric.Text(state.charB, { left: cx + 250, top: cy + 30, originX: 'center', originY: 'center', fontFamily: 'Nanum Myeongjo', fontSize: 80, fontWeight: 'bold', fill: '#fff' }));
-          
-          // 관계
-          canvas.add(new fabric.Text(`[ ${state.relation} ]`, { left: cx, top: 580, originX: 'center', originY: 'center', fontFamily: 'Gowun Dodum', fontSize: 24, fill: state.accColor, tracking: 200 }));
-          break;
-
-        // 🕵️ [2. MYSTERY (기밀문서) 테마]
-        case 'mystery':
-          // 배경 질감 (가짜)
-          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: BASE_W, height: BASE_H, fill: 'transparent', stroke: '#333', strokeWidth: 15 }));
-          
-          // 스탬프 (애니메이션 - 깜빡임)
-          const stampOpacity = (animProgress > 0.5) ? 1 : 0.7;
-          const stamp = new fabric.Text('TOP SECRET', { left: 200, top: 150, originX: 'center', originY: 'center', fontFamily: 'Courier Prime', fontSize: 60, fontWeight: 'bold', fill: state.accColor, angle: -15, opacity: stampOpacity });
-          canvas.add(new fabric.Rect({ left: 200, top: 150, originX: 'center', originY: 'center', width: 420, height: 80, fill: 'transparent', stroke: state.accColor, strokeWidth: 6, angle: -15, opacity: stampOpacity }));
-          canvas.add(stamp);
-
-          // 타이포 레이아웃
-          canvas.add(new fabric.Text('SUBJECT_01', { left: 100, top: 300, fontFamily: 'Share Tech Mono', fontSize: 20, fill: '#666' }));
-          canvas.add(new fabric.Text(state.charA, { left: 100, top: 340, fontFamily: 'Noto Sans KR', fontSize: 70, fontWeight: '900', fill: '#fff' }));
-          
-          canvas.add(new fabric.Text('X', { left: cx, top: 370, originX: 'center', originY: 'center', fontFamily: 'Arial', fontSize: 40, fill: state.accColor }));
-
-          canvas.add(new fabric.Text('SUBJECT_02', { left: BASE_W - 100, top: 300, originX: 'right', fontFamily: 'Share Tech Mono', fontSize: 20, fill: '#666' }));
-          canvas.add(new fabric.Text(state.charB, { left: BASE_W - 100, top: 340, originX: 'right', fontFamily: 'Noto Sans KR', fontSize: 70, fontWeight: '900', fill: '#fff' }));
-
-          canvas.add(new fabric.Text(`STATUS: ${state.relation}`, { left: 100, top: 550, fontFamily: 'Courier Prime', fontSize: 28, fill: state.accColor }));
-          canvas.add(new fabric.Text(`NOTE: ${state.quote}`, { left: 100, top: 600, fontFamily: 'Courier Prime', fontSize: 24, fill: '#aaa' }));
-          break;
-
-        // 🏰 [3. ROYAL (로판) 테마]
-        case 'royal':
-          // 금장 테두리 느낌
-          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1150, height: 620, fill: 'transparent', stroke: state.accColor, strokeWidth: 4 }));
-          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1130, height: 600, fill: 'transparent', stroke: state.accColor, strokeWidth: 1 }));
-          
-          canvas.add(new fabric.Text('✧', { left: cx, top: 90, originX: 'center', originY: 'center', fontFamily: 'Arial', fontSize: 40, fill: state.accColor }));
-          
-          canvas.add(new fabric.Text(state.charA, { left: cx, top: 250, originX: 'center', originY: 'center', fontFamily: 'Cinzel', fontSize: 70, fill: '#fff' }));
-          canvas.add(new fabric.Text(`― ${state.relation} ―`, { left: cx, top: 360, originX: 'center', originY: 'center', fontFamily: 'Gowun Batang', fontSize: 24, fill: state.accColor }));
-          canvas.add(new fabric.Text(state.charB, { left: cx, top: 470, originX: 'center', originY: 'center', fontFamily: 'Cinzel', fontSize: 70, fill: '#fff' }));
-          
-          canvas.add(new fabric.Text(state.quote, { left: cx, top: 620, originX: 'center', originY: 'center', fontFamily: 'Nanum Myeongjo', fontSize: 20, fontStyle: 'italic', fill: '#ccc' }));
-          break;
-
-        // 🖥️ [4. CYBER (해커/시스템) 테마]
-        case 'cyber':
-          // 그리드 배경
-          for(let i=0; i<BASE_W; i+=50) canvas.add(new fabric.Line([i, 0, i, BASE_H], { stroke: '#333', strokeWidth: 1 }));
-          for(let i=0; i<BASE_H; i+=50) canvas.add(new fabric.Line([0, i, BASE_W, i], { stroke: '#333', strokeWidth: 1 }));
-
-          // 상단 바
-          canvas.add(new fabric.Rect({ left: 0, top: 0, width: BASE_W, height: 60, fill: state.accColor }));
-          canvas.add(new fabric.Text('SYSTEM.OVERRIDE // PAIR_DATABASE', { left: 30, top: 15, fontFamily: 'Share Tech Mono', fontSize: 24, fontWeight: 'bold', fill: '#000' }));
-          
-          // 로딩바 애니메이션
-          const barW = 300 * animProgress;
-          canvas.add(new fabric.Rect({ left: BASE_W - 350, top: 25, width: 300, height: 10, fill: '#000', opacity: 0.3 }));
-          canvas.add(new fabric.Rect({ left: BASE_W - 350, top: 25, width: barW, height: 10, fill: '#000' }));
-
-          // 정보 박스
-          canvas.add(new fabric.Rect({ left: 100, top: 150, width: 450, height: 400, fill: '#050505', stroke: state.accColor, strokeWidth: 2 }));
-          canvas.add(new fabric.Rect({ left: BASE_W - 550, top: 150, width: 450, height: 400, fill: '#050505', stroke: state.accColor, strokeWidth: 2 }));
-
-          canvas.add(new fabric.Text('USER_01', { left: 130, top: 180, fontFamily: 'Share Tech Mono', fontSize: 20, fill: state.accColor }));
-          canvas.add(new fabric.Text(state.charA, { left: 130, top: 230, fontFamily: 'Noto Sans KR', fontSize: 60, fontWeight: 'bold', fill: '#fff' }));
-          
-          canvas.add(new fabric.Text('USER_02', { left: BASE_W - 520, top: 180, fontFamily: 'Share Tech Mono', fontSize: 20, fill: state.accColor }));
-          canvas.add(new fabric.Text(state.charB, { left: BASE_W - 520, top: 230, fontFamily: 'Noto Sans KR', fontSize: 60, fontWeight: 'bold', fill: '#fff' }));
-
-          // 하단 텍스트
-          canvas.add(new fabric.Text(`SYNC_RELATION : ${state.relation}`, { left: cx, top: 600, originX: 'center', originY: 'center', fontFamily: 'Share Tech Mono', fontSize: 30, fill: '#fff', backgroundColor: '#000' }));
-          canvas.add(new fabric.Text(`> ${state.quote}_`, { left: cx, top: 650, originX: 'center', originY: 'center', fontFamily: 'Noto Sans KR', fontSize: 20, fill: state.accColor }));
-          break;
-
-        // 📷 [5. DIGICAM (디카/캠코더) 테마]
-        case 'digicam':
-          // 디카 프레임
-          canvas.add(new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 1200, height: 640, fill: 'transparent', stroke: '#fff', strokeWidth: 2 }));
-          
-          // 캠코더 십자선
-          canvas.add(new fabric.Line([cx - 40, cy], [cx + 40, cy], { stroke: '#fff', strokeWidth: 1 }));
-          canvas.add(new fabric.Line([cx, cy - 40], [cx, cy + 40], { stroke: '#fff', strokeWidth: 1 }));
-
-          // REC 깜빡임
-          if (animProgress < 0.5 || animProgress > 0.9) {
-            canvas.add(new fabric.Circle({ left: 70, top: 70, radius: 10, fill: '#f00' }));
-          }
-          canvas.add(new fabric.Text('REC', { left: 100, top: 58, fontFamily: 'Share Tech Mono', fontSize: 30, fill: '#fff' }));
-          
-          canvas.add(new fabric.Text('100% 🔋', { left: BASE_W - 180, top: 60, fontFamily: 'Share Tech Mono', fontSize: 30, fill: '#fff' }));
-
-          // 중앙 텍스트 배치
-          canvas.add(new fabric.Text(state.charA, { left: cx - 200, top: cy - 50, originX: 'center', originY: 'center', fontFamily: 'Noto Sans KR', fontSize: 80, fontWeight: '900', fill: '#fff' }));
-          canvas.add(new fabric.Text(state.charB, { left: cx + 200, top: cy - 50, originX: 'center', originY: 'center', fontFamily: 'Noto Sans KR', fontSize: 80, fontWeight: '900', fill: '#fff' }));
-          
-          canvas.add(new fabric.Text(state.relation, { left: cx, top: cy + 80, originX: 'center', originY: 'center', fontFamily: 'Gowun Dodum', fontSize: 30, fill: state.accColor, backgroundColor: '#000' }));
-          canvas.add(new fabric.Text(`"${state.quote}"`, { left: cx, top: cy + 150, originX: 'center', originY: 'center', fontFamily: 'Noto Sans KR', fontSize: 24, fill: '#fff' }));
-          
-          // 날짜
-          const today = new Date().toISOString().split('T')[0].replace(/-/g, '.');
-          canvas.add(new fabric.Text(`${today}  PM 11:24`, { left: 80, top: 620, fontFamily: 'Share Tech Mono', fontSize: 24, fill: '#fff' }));
-          break;
-
-        // 🌃 [6. MODERN (모던 깔끔) 테마]
-        case 'modern':
-          canvas.add(new fabric.Rect({ left: 100, top: 100, width: BASE_W - 200, height: BASE_H - 200, fill: '#111' }));
-          canvas.add(new fabric.Rect({ left: 120, top: 120, width: BASE_W - 240, height: BASE_H - 240, fill: 'transparent', stroke: '#333', strokeWidth: 1 }));
-          
-          canvas.add(new fabric.Text(state.charA, { left: 160, top: 160, fontFamily: 'Noto Sans KR', fontSize: 90, fontWeight: '900', fill: '#fff' }));
-          canvas.add(new fabric.Text('X', { left: 170, top: 280, fontFamily: 'Arial', fontSize: 30, fill: state.accColor }));
-          canvas.add(new fabric.Text(state.charB, { left: 160, top: 340, fontFamily: 'Noto Sans KR', fontSize: 90, fontWeight: '900', fill: '#fff' }));
-
-          canvas.add(new fabric.Text(state.relation, { left: BASE_W - 160, top: 180, originX: 'right', fontFamily: 'Noto Sans KR', fontSize: 30, fill: state.accColor, fontWeight: 'bold' }));
-          canvas.add(new fabric.Text(state.quote, { left: BASE_W - 160, top: BASE_H - 180, originX: 'right', fontFamily: 'Gowun Batang', fontSize: 24, fill: '#aaa' }));
-          break;
-      }
-      
-      canvas.renderAll();
-    }
-
-    // ==========================================
-    // 이벤트 리스너 연결
-    // ==========================================
-    const inputs = ['inputA', 'inputB', 'inputRel', 'inputQuote'];
-    inputs.forEach(id => {
-      document.getElementById(id).addEventListener('input', (e) => {
-        state[id.replace('input', '').toLowerCase()] = e.target.value;
-        if(id === 'inputA') state.charA = e.target.value;
-        if(id === 'inputB') state.charB = e.target.value;
-        if(id === 'inputRel') state.relation = e.target.value;
-        if(id === 'inputQuote') state.quote = e.target.value;
-        renderTemplate(0);
-      });
-    });
-
-    document.getElementById('colorBg').addEventListener('input', (e) => { state.bgColor = e.target.value; renderTemplate(0); });
-    document.getElementById('colorAcc').addEventListener('input', (e) => { state.accColor = e.target.value; renderTemplate(0); });
-
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    // 2. 탭 UI
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
-        state.theme = btn.dataset.theme;
-        
-        // 테마 변경 시 기본 색상 추천 변경
-        const bgInput = document.getElementById('colorBg');
-        const accInput = document.getElementById('colorAcc');
-        if(state.theme === 'romance') { state.bgColor='#1a1a24'; state.accColor='#f43f5e'; }
-        if(state.theme === 'mystery') { state.bgColor='#1e1e1e'; state.accColor='#ef4444'; }
-        if(state.theme === 'royal') { state.bgColor='#0f172a'; state.accColor='#fbbf24'; }
-        if(state.theme === 'cyber') { state.bgColor='#000000'; state.accColor='#00ffcc'; }
-        if(state.theme === 'digicam') { state.bgColor='#050505'; state.accColor='#f43f5e'; }
-        if(state.theme === 'modern') { state.bgColor='#ffffff'; state.accColor='#000000'; }
-        
-        bgInput.value = state.bgColor;
-        accInput.value = state.accColor;
-        renderTemplate(0);
-      });
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      };
     });
 
-    // ==========================================
-    // 내보내기 (PNG & GIF)
-    // ==========================================
-    const overlay = document.getElementById('exportOverlay');
-    const statusText = document.getElementById('exportStatus');
+    // 3. 텍스트 제어 로직 (시나리오 제목, 이름, 대사)
+    window.addText = (type) => {
+      let textVal = '';
+      let fontSize = 40;
+      let fontFamily = 'Noto Sans KR';
+      let fontWeight = 'normal';
 
-    document.getElementById('btnPng').addEventListener('click', () => {
-      renderTemplate(0); // 고정된 상태로 렌더
+      if (type === 'title') {
+        textVal = document.getElementById('valTitle').value || '시나리오 제목';
+        fontSize = 80; fontWeight = '900';
+      } else if (type === 'name') {
+        textVal = document.getElementById('valName').value || '캐릭터 A x B';
+        fontSize = 50; fontFamily = 'Nanum Myeongjo';
+      } else if (type === 'quote') {
+        textVal = document.getElementById('valQuote').value || '캐치프레이즈를 입력하세요';
+        fontSize = 30; fontFamily = 'Gowun Batang';
+      }
+
+      const textObj = new fabric.IText(textVal, {
+        left: BASE_W / 2, top: BASE_H / 2,
+        originX: 'center', originY: 'center',
+        fontFamily: fontFamily, fontSize: fontSize,
+        fontWeight: fontWeight, fill: '#ffffff',
+        shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.8)', blur: 4, offsetX: 2, offsetY: 2 }) // 기본 그림자
+      });
+
+      canvas.add(textObj);
+      canvas.setActiveObject(textObj);
+    };
+
+    window.changeTextStyle = (key, value) => {
+      const obj = canvas.getActiveObject();
+      if (obj && obj.type === 'i-text') {
+        obj.set(key, value);
+        canvas.renderAll();
+      }
+    };
+
+    // 4. 이미지 업로드 로직 (단순하고 강력하게)
+    document.getElementById('imageUpload').onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = f => {
+        fabric.Image.fromURL(f.target.result, img => {
+          // 화면의 80% 크기로 일단 맞춤
+          const targetScale = (BASE_W * 0.8) / img.width;
+          img.set({
+            scaleX: targetScale, scaleY: targetScale,
+            left: BASE_W/2, top: BASE_H/2,
+            originX: 'center', originY: 'center'
+          });
+          canvas.add(img);
+          img.sendToBack(); // 이미지는 기본적으로 배경쪽으로 보냄
+          canvas.setActiveObject(img);
+        });
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // 5. 프레임 (기밀문서, 인스타그램 등)
+    const FRAMES = [
+      { id: 'secret', name: '기밀 문서', svg: `<svg viewBox="0 0 1280 720" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="40" width="1200" height="640" fill="none" stroke="#e11d48" stroke-width="6" stroke-dasharray="15 15"/><text x="80" y="120" font-size="45" font-weight="bold" fill="#e11d48" font-family="monospace">TOP SECRET // CONFIDENTIAL</text></svg>` },
+      { id: 'insta', name: '인스타그램', svg: `<svg viewBox="0 0 500 800" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect width="500" height="800" fill="#fff" rx="20" opacity="0.95"/><circle cx="50" cy="50" r="25" fill="#ddd"/><text x="90" y="55" font-size="16" font-family="sans-serif" font-weight="bold" fill="#000">dopa_official</text><rect x="0" y="90" width="500" height="500" fill="transparent" stroke="#eee" stroke-width="2"/><circle cx="30" cy="620" r="12" fill="none" stroke="#000" stroke-width="2"/><circle cx="75" cy="620" r="12" fill="none" stroke="#000" stroke-width="2"/><path d="M110,610 L130,620 L110,630 Z" fill="none" stroke="#000" stroke-width="2"/><rect x="450" y="608" width="20" height="24" fill="none" stroke="#000" stroke-width="2"/></svg>` },
+      { id: 'movie', name: '영화 비율', svg: `<svg viewBox="0 0 1280 720" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="1280" height="80" fill="#000"/><rect x="0" y="640" width="1280" height="80" fill="#000"/></svg>` }
+    ];
+
+    const frameGrid = document.getElementById('frameGrid');
+    FRAMES.forEach(f => {
+      const div = document.createElement('div');
+      div.className = 'asset-item';
+      div.innerHTML = `${f.svg}<span class="text-[10px] text-zinc-400 mt-2 font-bold">${f.name}</span>`;
+      div.onclick = () => {
+        fabric.loadSVGFromString(f.svg, (objs, opts) => {
+          const obj = fabric.util.groupSVGElements(objs, opts);
+          // 캔버스 크기에 딱 맞춤
+          obj.set({
+            scaleX: BASE_W / obj.width,
+            scaleY: (f.id==='insta') ? (BASE_H*0.9)/obj.height : BASE_H / obj.height,
+            left: BASE_W/2, top: BASE_H/2,
+            originX: 'center', originY: 'center'
+          });
+          canvas.add(obj);
+          obj.bringToFront(); // 프레임은 무조건 최상단으로
+          canvas.setActiveObject(obj);
+        });
+      };
+      frameGrid.appendChild(div);
+    });
+
+    // 6. 객체 제어 (선택 박스 & 레이어)
+    const toolbar = document.getElementById('controlToolbar');
+
+    canvas.on('selection:created', e => toolbar.style.display = 'flex');
+    canvas.on('selection:updated', e => toolbar.style.display = 'flex');
+    canvas.on('selection:cleared', e => toolbar.style.display = 'none');
+
+    window.moveLayer = (dir) => {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      if (dir === 'up') canvas.bringForward(obj);
+      if (dir === 'down') canvas.sendBackwards(obj);
+      canvas.renderAll();
+    };
+
+    window.deleteObject = () => {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      canvas.remove(obj);
+      canvas.discardActiveObject();
+    };
+
+    // 7. 다운로드
+    document.getElementById('btnDownload').onclick = () => {
+      canvas.discardActiveObject();
+      canvas.renderAll();
       const link = document.createElement('a');
-      link.download = `DOPA_CARD_${Date.now()}.png`;
+      link.download = `DOPA_SESSION_${Date.now()}.png`;
       link.href = canvas.toDataURL({ format: 'png', quality: 1 });
       link.click();
-    });
-
-    document.getElementById('btnGif').addEventListener('click', () => {
-      overlay.classList.remove('hidden');
-      overlay.classList.add('flex');
-      statusText.textContent = 'CAPTURNG FRAMES...';
-
-      const frames = [];
-      const totalFrames = 15; // 15프레임 (약 1.5초 루프)
-      
-      for(let i = 0; i < totalFrames; i++) {
-        renderTemplate(i / totalFrames); // 애니메이션 진행도(0.0 ~ 1.0)에 따라 그리기
-        frames.push(canvas.toDataURL({ format: 'png', multiplier: 0.5 })); // 용량 위해 크기 50%
-      }
-
-      statusText.textContent = 'ENCODING GIF...';
-
-      gifshot.createGIF({
-        images: frames,
-        gifWidth: BASE_W / 2,
-        gifHeight: BASE_H / 2,
-        interval: 0.1, // 10fps
-        numWorkers: 2
-      }, function(obj) {
-        overlay.classList.remove('flex');
-        overlay.classList.add('hidden');
-        
-        if (!obj.error) {
-          const link = document.createElement('a');
-          link.download = `DOPA_ANIM_${Date.now()}.gif`;
-          link.href = obj.image;
-          link.click();
-        } else {
-          alert("GIF 생성 중 오류가 발생했습니다.");
-        }
-        renderTemplate(0); // 다시 기본 상태로 복구
-      });
-    });
-
-    // 초기 렌더링 (폰트 로딩 대기 후)
-    document.fonts.ready.then(() => { renderTemplate(0); });
-    setTimeout(() => renderTemplate(0), 500); // 안전빵
+    };
   </script>
 </body>
 </html>
